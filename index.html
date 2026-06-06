@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book of Rao</title>
+<meta name="theme-color" content="#1a1208">
+<link rel="manifest" href="data:application/json,{}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  /* APP_VERSION: 1.0.0 */
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #8a6f2e;
+    --ink: #1a1208;
+    --ink-mid: #2e2210;
+    --ink-soft: #3d3020;
+    --parchment: #f5eedc;
+    --parchment-dim: #e8ddc4;
+    --text-main: #f0e6cc;
+    --text-muted: #a89878;
+    --text-dim: #6b5c3e;
+    --accent-vinyl: #c94c4c;
+    --accent-cd: #4c7bc9;
+    --accent-bluray: #4cb8c9;
+    --accent-dvd: #8c4cc9;
+    --radius: 4px;
+    --transition: 0.2s ease;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    background: var(--ink);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(201,168,76,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* PASSPHRASE GATE */
+  #gate {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2rem;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+  }
+  #gate.hidden { opacity: 0; pointer-events: none; }
+
+  .gate-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-align: center;
+  }
+  .gate-sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .gate-input-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .gate-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--gold-dim);
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    width: 220px;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .gate-input:focus { border-color: var(--gold); }
+  .gate-error {
+    font-size: 0.75rem;
+    color: var(--accent-vinyl);
+    letter-spacing: 0.1em;
+    min-height: 1rem;
+  }
+  .gate-ornament {
+    color: var(--gold-dim);
+    font-size: 1.5rem;
+    letter-spacing: 0.5em;
+  }
+
+  /* APP SHELL */
+  #app { position: relative; z-index: 1; min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    padding: 1.5rem 2rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 0.2rem; }
+  .app-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+  .app-count {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .btn-add {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background var(--transition);
+    white-space: nowrap;
+  }
+  .btn-add:hover { background: var(--gold-light); }
+
+  /* CONTROLS */
+  .controls {
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--ink-mid);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .search-input::placeholder { color: var(--text-dim); }
+  .search-input:focus { border-color: var(--gold-dim); }
+
+  .filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--text-muted);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .filter-btn:hover { border-color: var(--gold-dim); color: var(--text-main); }
+  .filter-btn.active { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 400; }
+  .filter-btn.vinyl.active { background: var(--accent-vinyl); border-color: var(--accent-vinyl); }
+  .filter-btn.cd.active { background: var(--accent-cd); border-color: var(--accent-cd); }
+  .filter-btn.bluray.active { background: var(--accent-bluray); border-color: var(--accent-bluray); }
+  .filter-btn.dvd.active { background: var(--accent-dvd); border-color: var(--accent-dvd); }
+
+  /* GRID */
+  .grid-wrap { padding: 1.5rem 2rem; }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+  }
+  .empty-state p:first-child {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold-dim);
+    margin-bottom: 0.5rem;
+  }
+  .empty-state p:last-child { font-size: 0.85rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.08);
+  }
+  .card {
+    background: var(--ink);
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: background var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    position: relative;
+  }
+  .card:hover { background: var(--ink-mid); }
+  .card-format {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin-bottom: 0.15rem;
+  }
+  .format-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .format-dot.vinyl { background: var(--accent-vinyl); }
+  .format-dot.cd { background: var(--accent-cd); }
+  .format-dot.bluray { background: var(--accent-bluray); }
+  .format-dot.dvd { background: var(--accent-dvd); }
+  .card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.3;
+  }
+  .card-artist {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+  .card-genre {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+  .card-actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    gap: 0.3rem;
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .card:hover .card-actions { opacity: 1; }
+  .icon-btn {
+    background: var(--ink-soft);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--text-muted);
+    width: 28px; height: 28px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .icon-btn.del:hover { border-color: var(--accent-vinyl); color: var(--accent-vinyl); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,8,4,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--ink-mid);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transform: translateY(12px);
+    transition: transform 0.2s ease;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+  .form-row { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-row label {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    background: var(--ink-soft);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 0.55rem 0.75rem;
+    outline: none;
+    transition: border-color var(--transition);
+    width: 100%;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus { border-color: var(--gold-dim); }
+  .form-row select option { background: var(--ink-mid); }
+  .form-row textarea { resize: vertical; min-height: 80px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--text-muted);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    padding: 0.55rem 1.2rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-cancel:hover { border-color: var(--text-muted); color: var(--text-main); }
+  .btn-save {
+    background: var(--gold);
+    border: none;
+    color: var(--ink);
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    padding: 0.55rem 1.4rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .btn-save:hover { background: var(--gold-light); }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink-soft);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LOADING */
+  .loading-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    header, .controls, .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .modal { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-ornament">— ✦ —</div>
+  <div class="header-left" style="align-items:center">
+    <div class="app-title" style="font-size:clamp(2rem,6vw,3.2rem)">Book of Rao</div>
+    <div class="app-count" style="margin-top:0.4rem">physical media library</div>
+  </div>
+  <div class="gate-input-wrap">
+    <input class="gate-input" id="passInput" type="password" placeholder="passphrase" autocomplete="off" spellcheck="false">
+    <div class="gate-error" id="gateError"></div>
+  </div>
+  <div class="gate-ornament">— ✦ —</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <header>
+    <div class="header-left">
+      <div class="app-title">Book of Rao</div>
+      <div class="app-count" id="countLabel">— items</div>
+    </div>
+    <button class="btn-add" onclick="openModal()">+ Add Item</button>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" id="searchInput" placeholder="Search titles, artists…" oninput="renderGrid()">
+    </div>
+    <div class="filter-group" id="filterGroup">
+      <button class="filter-btn active" data-format="All" onclick="setFilter('All',this)">All</button>
+      <button class="filter-btn vinyl" data-format="Vinyl" onclick="setFilter('Vinyl',this)">Vinyl</button>
+      <button class="filter-btn cd" data-format="CD" onclick="setFilter('CD',this)">CD</button>
+      <button class="filter-btn bluray" data-format="Blu-ray" onclick="setFilter('Blu-ray',this)">Blu-ray</button>
+      <button class="filter-btn dvd" data-format="DVD" onclick="setFilter('DVD',this)">DVD</button>
+    </div>
+  </div>
+
+  <div class="grid-wrap" id="gridWrap">
+    <div class="loading-row">Loading…</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add Item</div>
+    <div class="form-row">
+      <label>Title *</label>
+      <input id="fTitle" type="text" placeholder="Album, film, or series title">
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Format *</label>
+        <select id="fFormat">
+          <option value="">Select…</option>
+          <option>Vinyl</option>
+          <option>CD</option>
+          <option>Blu-ray</option>
+          <option>DVD</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Genre</label>
+        <input id="fGenre" type="text" placeholder="Jazz, Horror, Sci-fi…">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Artist / Director</label>
+      <input id="fArtist" type="text" placeholder="Who made it">
+    </div>
+    <div class="form-row">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Edition, condition, anything else…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="btnSave" onclick="saveItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://pknnhharadotkdvvkdoh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2Fw-nRJT74bovs1JSTBx_Q_zR-DgCPm';
+const PASSPHRASE   = 'intention';
+const TABLE        = 'shelf_items';
+
+let items = [];
+let activeFilter = 'All';
+let editingId = null;
+
+// ── GATE ────────────────────────────────────────────────
+const passInput = document.getElementById('passInput');
+const gateError = document.getElementById('gateError');
+
+passInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPass();
+});
+
+function checkPass() {
+  if (passInput.value.trim().toLowerCase() === PASSPHRASE) {
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+    setTimeout(() => document.getElementById('gate').remove(), 600);
+    loadItems();
+  } else {
+    gateError.textContent = 'Incorrect passphrase';
+    passInput.value = '';
+    passInput.focus();
+  }
+}
+
+// ── SUPABASE ─────────────────────────────────────────────
+async function sb(path, opts={}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function loadItems() {
+  try {
+    items = await sb(`${TABLE}?order=title.asc&select=*`);
+    renderGrid();
+  } catch(e) {
+    showToast('Error loading items');
+    console.error(e);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function formatClass(fmt) {
+  if (!fmt) return '';
+  return fmt.toLowerCase().replace('-','');
+}
+
+function renderGrid() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = items.filter(it => {
+    const matchFormat = activeFilter === 'All' || it.format === activeFilter;
+    const matchSearch = !q ||
+      (it.title || '').toLowerCase().includes(q) ||
+      (it.artist_director || '').toLowerCase().includes(q) ||
+      (it.genre || '').toLowerCase().includes(q);
+    return matchFormat && matchSearch;
+  });
+
+  document.getElementById('countLabel').textContent =
+    `${items.length} item${items.length !== 1 ? 's' : ''}`;
+
+  const wrap = document.getElementById('gridWrap');
+  if (!filtered.length) {
+    wrap.innerHTML = `<div class="empty-state"><p>The shelf is bare.</p><p>${items.length ? 'Try a different search or filter.' : 'Add your first item to begin.'}</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div class="grid">${filtered.map(it => `
+    <div class="card" onclick="editItem('${it.id}')">
+      <div class="card-actions">
+        <button class="icon-btn del" title="Delete" onclick="deleteItem(event,'${it.id}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+      <div class="card-format">
+        <span class="format-dot ${formatClass(it.format)}"></span>
+        <span style="color:var(--text-dim)">${it.format || ''}</span>
+      </div>
+      <div class="card-title">${esc(it.title)}</div>
+      ${it.artist_director ? `<div class="card-artist">${esc(it.artist_director)}</div>` : ''}
+      ${it.genre ? `<div class="card-genre">${esc(it.genre)}</div>` : ''}
+    </div>
+  `).join('')}</div>`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setFilter(fmt, btn) {
+  activeFilter = fmt;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+// ── MODAL ────────────────────────────────────────────────
+function openModal(item=null) {
+  editingId = item ? item.id : null;
+  document.getElementById('modalTitle').textContent = item ? 'Edit Item' : 'Add Item';
+  document.getElementById('fTitle').value  = item?.title || '';
+  document.getElementById('fFormat').value = item?.format || '';
+  document.getElementById('fGenre').value  = item?.genre || '';
+  document.getElementById('fArtist').value = item?.artist_director || '';
+  document.getElementById('fNotes').value  = item?.notes || '';
+  document.getElementById('btnSave').disabled = false;
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('fTitle').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function editItem(id) {
+  const item = items.find(i => i.id === id);
+  if (item) openModal(item);
+}
+
+async function saveItem() {
+  const title  = document.getElementById('fTitle').value.trim();
+  const format = document.getElementById('fFormat').value;
+  if (!title || !format) { showToast('Title and format are required'); return; }
+
+  const payload = {
+    title,
+    format,
+    genre: document.getElementById('fGenre').value.trim() || null,
+    artist_director: document.getElementById('fArtist').value.trim() || null,
+    notes: document.getElementById('fNotes').value.trim() || null,
+  };
+
+  document.getElementById('btnSave').disabled = true;
+  try {
+    if (editingId) {
+      const updated = await sb(`${TABLE}?id=eq.${editingId}`, {
+        method: 'PATCH', body: JSON.stringify(payload)
+      });
+      const idx = items.findIndex(i => i.id === editingId);
+      if (idx > -1) items[idx] = { ...items[idx], ...payload };
+      showToast('Item updated');
+    } else {
+      const created = await sb(TABLE, { method: 'POST', body: JSON.stringify(payload) });
+      if (created && created[0]) items.push(created[0]);
+      items.sort((a,b) => a.title.localeCompare(b.title));
+      showToast('Item added');
+    }
+    closeModal();
+    renderGrid();
+  } catch(e) {
+    showToast('Error saving — check console');
+    console.error(e);
+    document.getElementById('btnSave').disabled = false;
+  }
+}
+
+async function deleteItem(e, id) {
+  e.stopPropagation();
+  if (!confirm('Remove this item from the shelf?')) return;
+  try {
+    await sb(`${TABLE}?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    items = items.filter(i => i.id !== id);
+    renderGrid();
+    showToast('Item removed');
+  } catch(err) {
+    showToast('Error removing item');
+    console.error(err);
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
