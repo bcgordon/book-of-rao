@@ -4,30 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book of Rao</title>
-<meta name="theme-color" content="#1a1208">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="data:application/json,{}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.0.0 */
+  /* APP_VERSION: 1.2.0 */
   :root {
     --gold: #c9a84c;
     --gold-light: #e8c97a;
     --gold-dim: #8a6f2e;
-    --ink: #1a1208;
-    --ink-mid: #2e2210;
-    --ink-soft: #3d3020;
-    --parchment: #f5eedc;
-    --parchment-dim: #e8ddc4;
+    --ink: #000000;
+    --ink-mid: #111111;
+    --ink-soft: #1e1e1e;
     --text-main: #f0e6cc;
     --text-muted: #a89878;
-    --text-dim: #6b5c3e;
+    --text-dim: #5a5040;
     --accent-vinyl: #c94c4c;
     --accent-cd: #4c7bc9;
     --accent-bluray: #4cb8c9;
     --accent-dvd: #8c4cc9;
     --radius: 4px;
     --transition: 0.2s ease;
+  }
+
+  :root.light {
+    --ink: #ffffff;
+    --ink-mid: #f2f2f2;
+    --ink-soft: #e6e6e6;
+    --text-main: #1a1208;
+    --text-muted: #5a4a2e;
+    --text-dim: #9a8060;
+    --gold-dim: #a07828;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,6 +59,25 @@
     pointer-events: none;
     z-index: 0;
   }
+  :root.light body::before {
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(160,120,40,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(160,120,40,0.04) 0%, transparent 50%);
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--text-muted);
+    width: 32px; height: 32px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--gold-dim); color: var(--gold); }
 
   /* PASSPHRASE GATE */
   #gate {
@@ -440,6 +467,191 @@
     text-transform: uppercase;
   }
 
+  /* BULK ENTRY */
+  #bulkPanel {
+    display: none;
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  #bulkPanel.open { display: flex; }
+
+  .bulk-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .bulk-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+  .bulk-hint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+  }
+  .bulk-hint code {
+    font-family: monospace;
+    background: var(--ink-soft);
+    padding: 0.1em 0.4em;
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-size: 0.85em;
+  }
+
+  .bulk-format-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .bulk-format-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .bulk-format-select {
+    background: var(--ink-soft);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 0.45rem 0.75rem;
+    outline: none;
+    transition: border-color var(--transition);
+    cursor: pointer;
+  }
+  .bulk-format-select:focus { border-color: var(--gold-dim); }
+  .bulk-format-select option { background: var(--ink-mid); }
+
+  .bulk-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    flex: 1;
+  }
+  @media (max-width: 700px) { .bulk-body { grid-template-columns: 1fr; } }
+
+  .bulk-col-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+  .bulk-textarea {
+    width: 100%;
+    height: 420px;
+    background: var(--ink-soft);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 0.85rem 1rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color var(--transition);
+  }
+  .bulk-textarea:focus { border-color: var(--gold-dim); }
+  .bulk-textarea::placeholder { color: var(--text-dim); }
+
+  .bulk-preview {
+    height: 420px;
+    overflow-y: auto;
+    border: 1px solid rgba(201,168,76,0.08);
+    border-radius: var(--radius);
+    background: var(--ink-mid);
+  }
+  .preview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+    animation: fadeIn 0.15s ease;
+  }
+  .preview-item:last-child { border-bottom: none; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .preview-num {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    min-width: 1.4rem;
+    padding-top: 0.1rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .preview-info { display: flex; flex-direction: column; gap: 0.15rem; }
+  .preview-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    line-height: 1.3;
+  }
+  .preview-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .preview-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .bulk-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  .bulk-count-label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+  .bulk-actions { display: flex; gap: 0.75rem; }
+
+  .btn-bulk {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--text-muted);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .btn-bulk:hover { border-color: var(--gold-dim); color: var(--text-main); }
+
+  @media (max-width: 600px) {
+    #bulkPanel { padding: 1rem; }
+  }
+
   @media (max-width: 600px) {
     header, .controls, .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
     .form-grid { grid-template-columns: 1fr; }
@@ -470,7 +682,13 @@
       <div class="app-title">Book of Rao</div>
       <div class="app-count" id="countLabel">— items</div>
     </div>
-    <button class="btn-add" onclick="openModal()">+ Add Item</button>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark">
+        <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="btn-bulk" onclick="openBulk()" id="btnBulkOpen">Bulk Entry</button>
+      <button class="btn-add" onclick="openModal()">+ Add Item</button>
+    </div>
   </header>
 
   <div class="controls">
@@ -489,6 +707,51 @@
 
   <div class="grid-wrap" id="gridWrap">
     <div class="loading-row">Loading…</div>
+  </div>
+
+  <!-- BULK ENTRY PANEL -->
+  <div id="bulkPanel">
+    <div class="bulk-header">
+      <div>
+        <div class="bulk-title">Bulk Entry</div>
+        <div class="bulk-hint" style="margin-top:0.35rem">
+          One item per line. Optionally add artist and genre with pipes:<br>
+          <code>Kind of Blue</code> &nbsp;or&nbsp; <code>Kind of Blue | Miles Davis | Jazz</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="bulk-format-row">
+      <span class="bulk-format-label">Format for this batch:</span>
+      <select class="bulk-format-select" id="bulkFormat">
+        <option value="">Select format…</option>
+        <option>Vinyl</option>
+        <option>CD</option>
+        <option>Blu-ray</option>
+        <option>DVD</option>
+      </select>
+    </div>
+
+    <div class="bulk-body">
+      <div>
+        <div class="bulk-col-label">Enter titles</div>
+        <textarea class="bulk-textarea" id="bulkTextarea" placeholder="Kind of Blue&#10;Rumours&#10;The Godfather | Francis Ford Coppola | Drama&#10;Dark Side of the Moon | Pink Floyd | Rock" oninput="parseBulk()"></textarea>
+      </div>
+      <div>
+        <div class="bulk-col-label">Preview — <span id="bulkCountLabel">0 items</span></div>
+        <div class="bulk-preview" id="bulkPreview">
+          <div class="preview-empty">Start typing to see a preview</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bulk-footer">
+      <div class="bulk-count-label" id="bulkStatusLabel"></div>
+      <div class="bulk-actions">
+        <button class="btn-bulk" onclick="closeBulk()">Cancel</button>
+        <button class="btn-save" id="btnBulkSave" onclick="saveBulk()" disabled>Import Items</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -736,9 +999,121 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ── KEYBOARD ──────────────────────────────────────────────
+// ── THEME ─────────────────────────────────────────────────
+const moonSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+const sunSVG  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('themeToggle').innerHTML = moonSVG;
+    document.querySelector('meta[name="theme-color"]').content = '#ffffff';
+  } else {
+    document.documentElement.classList.remove('light');
+    document.getElementById('themeToggle').innerHTML = sunSVG;
+    document.querySelector('meta[name="theme-color"]').content = '#000000';
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.contains('light');
+  const next = isLight ? 'dark' : 'light';
+  localStorage.setItem('rao-theme', next);
+  applyTheme(next);
+}
+
+applyTheme(localStorage.getItem('rao-theme') || 'dark');
+
+// ── BULK ENTRY ────────────────────────────────────────────
+function openBulk() {
+  document.getElementById('gridWrap').style.display = 'none';
+  document.querySelector('.controls').style.display = 'none';
+  document.getElementById('bulkPanel').classList.add('open');
+  document.getElementById('btnBulkOpen').style.display = 'none';
+  document.getElementById('bulkTextarea').focus();
+}
+
+function closeBulk() {
+  document.getElementById('bulkPanel').classList.remove('open');
+  document.getElementById('bulkTextarea').value = '';
+  document.getElementById('bulkFormat').value = '';
+  document.getElementById('bulkPreview').innerHTML = '<div class="preview-empty">Start typing to see a preview</div>';
+  document.getElementById('bulkCountLabel').textContent = '0 items';
+  document.getElementById('bulkStatusLabel').textContent = '';
+  document.getElementById('btnBulkSave').disabled = true;
+  document.getElementById('gridWrap').style.display = '';
+  document.querySelector('.controls').style.display = '';
+  document.getElementById('btnBulkOpen').style.display = '';
+}
+
+function parseBulkLines() {
+  const raw = document.getElementById('bulkTextarea').value;
+  return raw.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => {
+      const parts = line.split('|').map(p => p.trim());
+      return { title: parts[0] || '', artist_director: parts[1] || null, genre: parts[2] || null };
+    })
+    .filter(item => item.title.length > 0);
+}
+
+function parseBulk() {
+  const parsed = parseBulkLines();
+  const format = document.getElementById('bulkFormat').value;
+  const count = parsed.length;
+  document.getElementById('bulkCountLabel').textContent = `${count} item${count !== 1 ? 's' : ''}`;
+  document.getElementById('btnBulkSave').disabled = count === 0 || !format;
+  const preview = document.getElementById('bulkPreview');
+  if (!count) {
+    preview.innerHTML = '<div class="preview-empty">Start typing to see a preview</div>';
+    return;
+  }
+  preview.innerHTML = parsed.map((item, i) => `
+    <div class="preview-item">
+      <div class="preview-num">${i + 1}</div>
+      <div class="preview-info">
+        <div class="preview-title">${esc(item.title)}</div>
+        ${item.artist_director || item.genre ? `<div class="preview-meta">${[item.artist_director, item.genre].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('bulkFormat').addEventListener('change', parseBulk);
+
+async function saveBulk() {
+  const parsed = parseBulkLines();
+  const format = document.getElementById('bulkFormat').value;
+  if (!parsed.length || !format) { showToast('Add some titles and select a format'); return; }
+  const btn = document.getElementById('btnBulkSave');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const payload = parsed.map(item => ({
+    title: item.title, format,
+    artist_director: item.artist_director || null,
+    genre: item.genre || null,
+    notes: null,
+  }));
+  try {
+    const created = await sb(TABLE, { method: 'POST', body: JSON.stringify(payload) });
+    if (created) items.push(...created);
+    items.sort((a, b) => a.title.localeCompare(b.title));
+    showToast(`${payload.length} item${payload.length !== 1 ? 's' : ''} added`);
+    closeBulk();
+    renderGrid();
+  } catch(e) {
+    showToast('Error saving — check console');
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = 'Import Items';
+  }
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') {
+    if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
+    else closeModal();
+  }
 });
 </script>
 </body>
