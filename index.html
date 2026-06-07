@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.3.2 */
+  /* APP_VERSION: 1.4.0 */
   :root {
     --gold: #c9a84c;
     --gold-light: #e8c97a;
@@ -739,8 +739,8 @@
       <div>
         <div class="bulk-title">Bulk Entry</div>
         <div class="bulk-hint" style="margin-top:0.35rem">
-          One item per line. Optionally add artist and genre with pipes:<br>
-          <code>Kind of Blue</code> &nbsp;or&nbsp; <code>Kind of Blue | Miles Davis | Jazz</code>
+          One item per line. Optionally add artist, genre, and year with pipes:<br>
+          <code>Kind of Blue</code> &nbsp;or&nbsp; <code>Kind of Blue | Miles Davis | Jazz | 1959</code>
         </div>
       </div>
     </div>
@@ -760,7 +760,7 @@
     <div class="bulk-body">
       <div>
         <div class="bulk-col-label">Enter titles</div>
-        <textarea class="bulk-textarea" id="bulkTextarea" placeholder="Kind of Blue&#10;Rumours&#10;The Godfather | Francis Ford Coppola | Drama&#10;Dark Side of the Moon | Pink Floyd | Rock" oninput="parseBulk()"></textarea>
+        <textarea class="bulk-textarea" id="bulkTextarea" placeholder="Kind of Blue&#10;Rumours | Fleetwood Mac | Rock | 1977&#10;The Godfather | Francis Ford Coppola | Drama | 1972&#10;Dark Side of the Moon | Pink Floyd | Rock | 1973" oninput="parseBulk()"></textarea>
       </div>
       <div>
         <div class="bulk-col-label">Preview — <span id="bulkCountLabel">0 items</span></div>
@@ -808,6 +808,10 @@
     <div class="form-row">
       <label>Artist / Director</label>
       <input id="fArtist" type="text" placeholder="Who made it">
+    </div>
+    <div class="form-row">
+      <label>Year</label>
+      <input id="fYear" type="number" placeholder="e.g. 1973" min="1888" max="2099">
     </div>
     <div class="form-row">
       <label>Notes</label>
@@ -917,7 +921,7 @@ function renderGrid() {
       </div>
       <div class="card-format">
         <span class="format-dot ${formatClass(it.format)}"></span>
-        <span style="color:var(--text-dim)">${it.format || ''}</span>
+        <span style="color:var(--text-dim)">${it.format || ''}${it.year ? ` · ${it.year}` : ''}</span>
       </div>
       <div class="card-title">${esc(it.title)}</div>
       ${it.artist_director ? `<div class="card-artist">${esc(it.artist_director)}</div>` : ''}
@@ -946,6 +950,7 @@ function openModal(item=null) {
   document.getElementById('fFormat').value = item?.format || '';
   document.getElementById('fGenre').value  = item?.genre || '';
   document.getElementById('fArtist').value = item?.artist_director || '';
+  document.getElementById('fYear').value   = item?.year || '';
   document.getElementById('fNotes').value  = item?.notes || '';
   document.getElementById('btnSave').disabled = false;
   document.getElementById('modalOverlay').classList.add('open');
@@ -976,6 +981,7 @@ async function saveItem() {
     format,
     genre: document.getElementById('fGenre').value.trim() || null,
     artist_director: document.getElementById('fArtist').value.trim() || null,
+    year: parseInt(document.getElementById('fYear').value) || null,
     notes: document.getElementById('fNotes').value.trim() || null,
   };
 
@@ -1081,7 +1087,8 @@ function parseBulkLines() {
     .filter(line => line.length > 0)
     .map(line => {
       const parts = line.split('|').map(p => p.trim());
-      return { title: parts[0] || '', artist_director: parts[1] || null, genre: parts[2] || null };
+      const yr = parseInt(parts[3]);
+      return { title: parts[0] || '', artist_director: parts[1] || null, genre: parts[2] || null, year: (yr >= 1888 && yr <= 2099) ? yr : null };
     })
     .filter(item => item.title.length > 0);
 }
@@ -1102,7 +1109,7 @@ function parseBulk() {
       <div class="preview-num">${i + 1}</div>
       <div class="preview-info">
         <div class="preview-title">${esc(item.title)}</div>
-        ${item.artist_director || item.genre ? `<div class="preview-meta">${[item.artist_director, item.genre].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+        ${item.artist_director || item.genre || item.year ? `<div class="preview-meta">${[item.artist_director, item.genre, item.year].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
       </div>
     </div>`).join('');
 }
@@ -1120,6 +1127,7 @@ async function saveBulk() {
     title: item.title, format,
     artist_director: item.artist_director || null,
     genre: item.genre || null,
+    year: item.year || null,
     notes: null,
   }));
   try {
