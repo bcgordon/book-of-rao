@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.4.1 */
+  /* APP_VERSION: 1.4.2 */
   :root {
     --gold: #c9a84c;
     --gold-light: #e8c97a;
@@ -734,7 +734,7 @@
   <div class="controls">
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input class="search-input" id="searchInput" placeholder="Search titles, artists…" oninput="renderGrid()">
+      <input class="search-input" id="searchInput" placeholder="Search titles, artists, genres…" oninput="renderGrid()">
     </div>
     <div class="filter-group" id="filterGroup">
       <button class="filter-btn active" data-format="All" onclick="setFilter('All',this)">All</button>
@@ -916,7 +916,8 @@ function renderGrid() {
     const matchSearch = !q ||
       (it.title || '').toLowerCase().includes(q) ||
       (it.artist_director || '').toLowerCase().includes(q) ||
-      (it.genre || '').toLowerCase().includes(q);
+      (it.genre || '').toLowerCase().includes(q) ||
+      (it.notes || '').toLowerCase().includes(q);
     return matchFormat && matchSearch;
   });
 
