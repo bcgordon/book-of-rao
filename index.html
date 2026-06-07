@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.4.0 */
+  /* APP_VERSION: 1.4.1 */
   :root {
     --gold: #c9a84c;
     --gold-light: #e8c97a;
@@ -379,14 +379,31 @@
     border-radius: var(--radius);
     width: 100%;
     max-width: 480px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(12px);
+    transition: transform 0.2s ease;
+    overflow: hidden;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-inner {
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    transform: translateY(12px);
-    transition: transform 0.2s ease;
+    overflow-y: auto;
+    flex: 1;
   }
-  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-footer {
+    padding: 1rem 2rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    background: var(--ink-mid);
+  }
   .modal-title {
     font-family: 'Cinzel', serif;
     font-size: 1.1rem;
@@ -783,41 +800,43 @@
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <div class="modal-title" id="modalTitle">Add Item</div>
-    <div class="form-row">
-      <label>Title *</label>
-      <input id="fTitle" type="text" placeholder="Album, film, or series title">
-    </div>
-    <div class="form-grid">
+    <div class="modal-inner">
+      <div class="modal-title" id="modalTitle">Add Item</div>
       <div class="form-row">
-        <label>Format *</label>
-        <select id="fFormat">
-          <option value="">Select…</option>
-          <option>Vinyl</option>
-          <option>CD</option>
-          <option>Blu-ray</option>
-          <option>DVD</option>
-          <option>VHS</option>
-        </select>
+        <label>Title *</label>
+        <input id="fTitle" type="text" placeholder="Album, film, or series title">
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Format *</label>
+          <select id="fFormat">
+            <option value="">Select…</option>
+            <option>Vinyl</option>
+            <option>CD</option>
+            <option>Blu-ray</option>
+            <option>DVD</option>
+            <option>VHS</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Genre</label>
+          <input id="fGenre" type="text" placeholder="Jazz, Horror, Sci-fi…">
+        </div>
       </div>
       <div class="form-row">
-        <label>Genre</label>
-        <input id="fGenre" type="text" placeholder="Jazz, Horror, Sci-fi…">
+        <label>Artist / Director</label>
+        <input id="fArtist" type="text" placeholder="Who made it">
+      </div>
+      <div class="form-row">
+        <label>Year</label>
+        <input id="fYear" type="number" placeholder="e.g. 1973" min="1888" max="2099">
+      </div>
+      <div class="form-row">
+        <label>Notes</label>
+        <textarea id="fNotes" placeholder="Edition, condition, anything else…"></textarea>
       </div>
     </div>
-    <div class="form-row">
-      <label>Artist / Director</label>
-      <input id="fArtist" type="text" placeholder="Who made it">
-    </div>
-    <div class="form-row">
-      <label>Year</label>
-      <input id="fYear" type="number" placeholder="e.g. 1973" min="1888" max="2099">
-    </div>
-    <div class="form-row">
-      <label>Notes</label>
-      <textarea id="fNotes" placeholder="Edition, condition, anything else…"></textarea>
-    </div>
-    <div class="modal-actions">
+    <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" id="btnSave" onclick="saveItem()">Save</button>
     </div>
