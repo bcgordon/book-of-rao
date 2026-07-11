@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.5.2 — RETRO THEME */
+  /* APP_VERSION: 1.6.0 — RETRO THEME */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -619,9 +619,6 @@
 </head>
 <body>
 
-<!-- GATE -->
-<div id="gate">
-  <div class="gate-ornament">— ✦ —</div>
   <div class="header-left" style="align-items:center">
     <div class="app-title" style="font-size:clamp(2rem,6vw,3.2rem)">Book of Rao</div>
     <div class="app-count" style="margin-top:0.4rem">physical media library</div>
@@ -634,7 +631,7 @@
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none">
+<div id="app">
   <header>
     <div class="header-left">
       <div class="app-title">Book of Rao</div>
@@ -766,32 +763,12 @@
 <script>
 const SUPABASE_URL = 'https://pknnhharadotkdvvkdoh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2Fw-nRJT74bovs1JSTBx_Q_zR-DgCPm';
-const PASSPHRASE   = 'theshelf';
 const TABLE        = 'shelf_items';
 
 let items = [];
 let activeFilter = 'All';
 let editingId = null;
 
-// ── GATE ────────────────────────────────────────────────
-const passInput = document.getElementById('passInput');
-const gateError = document.getElementById('gateError');
-
-passInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPass();
-});
-
-function checkPass() {
-  if (passInput.value.trim().toLowerCase() === PASSPHRASE) {
-    document.getElementById('gate').classList.add('hidden');
-    document.getElementById('app').style.display = 'block';
-    setTimeout(() => document.getElementById('gate').remove(), 600);
-    loadItems();
-  } else {
-    gateError.textContent = 'Incorrect passphrase';
-    passInput.value = '';
-    passInput.focus();
-  }
 }
 
 // ── SUPABASE ─────────────────────────────────────────────
@@ -995,6 +972,7 @@ function toggleTheme() {
 }
 
 applyTheme(localStorage.getItem('rao-theme') || 'dark');
+loadItems();
 
 // ── BULK ENTRY ────────────────────────────────────────────
 function openBulk() {
