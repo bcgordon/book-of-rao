@@ -111,67 +111,6 @@
     opacity: 0.6;
   }
 
-  /* ── GATE ── */
-  #gate {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 1.5rem;
-    z-index: 1000;
-    transition: opacity 0.5s ease;
-  }
-  #gate.hidden { opacity: 0; pointer-events: none; }
-
-  .gate-title {
-    font-family: var(--font-title);
-    font-weight: 700;
-    font-size: clamp(2rem, 6vw, 3.2rem);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--neon);
-    text-shadow: 0 0 20px var(--neon-glow), 0 0 60px var(--neon-glow);
-  }
-  .gate-sub {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    color: var(--text-dim);
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-  }
-  .gate-input-wrap {
-    display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
-  }
-  .gate-input {
-    background: var(--bg-soft);
-    border: 2px solid var(--neon-dim);
-    color: var(--neon);
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.3em;
-    text-align: center;
-    padding: 0.6rem 1.2rem;
-    width: 240px;
-    outline: none;
-    transition: border-color var(--transition), box-shadow var(--transition);
-  }
-  .gate-input:focus {
-    border-color: var(--neon);
-    box-shadow: 0 0 12px var(--neon-glow);
-  }
-  .gate-error {
-    font-family: var(--font-mono);
-    font-size: 0.45rem;
-    color: var(--red);
-    letter-spacing: 0.1em;
-    min-height: 1rem;
-  }
-  .gate-ornament {
-    font-family: var(--font-mono);
-    color: var(--text-dim);
-    font-size: 0.5rem;
-    letter-spacing: 0.5em;
-  }
-
   /* ── APP SHELL ── */
   #app { position: relative; z-index: 1; min-height: 100vh; }
 
@@ -618,17 +557,6 @@
 </style>
 </head>
 <body>
-
-  <div class="header-left" style="align-items:center">
-    <div class="app-title" style="font-size:clamp(2rem,6vw,3.2rem)">Book of Rao</div>
-    <div class="app-count" style="margin-top:0.4rem">physical media library</div>
-  </div>
-  <div class="gate-input-wrap">
-    <input class="gate-input" id="passInput" type="password" placeholder="password" autocomplete="off" spellcheck="false">
-    <div class="gate-error" id="gateError"></div>
-  </div>
-  <div class="gate-ornament">— ✦ —</div>
-</div>
 
 <!-- APP -->
 <div id="app">
