@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.7.1 — RETRO THEME + SCANNER */
+  /* APP_VERSION: 1.7.2 — RETRO THEME + SCANNER + BOOKS */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -65,6 +65,7 @@
     --teal:      #00bcd4;
     --purple:    #d500f9;
     --green:     #00e676;
+    --orange:    #ff6d00;
     --text:      #0a0a0a;
     --text-mid:  #3a3a3a;
     --text-dim:  #888888;
@@ -233,6 +234,7 @@
   .filter-btn.bluray.active { background: var(--teal);   border-color: var(--teal);   color: #fff; box-shadow: 0 0 8px rgba(31,184,154,0.4); }
   .filter-btn.dvd.active    { background: var(--purple);  border-color: var(--purple); color: #fff; box-shadow: 0 0 8px rgba(139,63,207,0.4); }
   .filter-btn.vhs.active    { background: var(--green);  border-color: var(--green);  color: #fff; box-shadow: 0 0 8px rgba(39,168,95,0.4); }
+  .filter-btn.books.active  { background: var(--orange); border-color: var(--orange); color: #fff; box-shadow: 0 0 8px rgba(255,109,0,0.4); }
 
   /* ── GRID ── */
   .grid-wrap { padding: 1rem 1.5rem; }
@@ -275,11 +277,13 @@
   .card.fmt-bluray { border-left-color: var(--teal); }
   .card.fmt-dvd    { border-left-color: var(--purple); }
   .card.fmt-vhs    { border-left-color: var(--green); }
+  .card.fmt-books  { border-left-color: var(--orange); }
   .card.fmt-vinyl:hover  { box-shadow: -2px 0 12px rgba(224,48,48,0.3); }
   .card.fmt-cd:hover     { box-shadow: -2px 0 12px rgba(42,111,219,0.3); }
   .card.fmt-bluray:hover { box-shadow: -2px 0 12px rgba(31,184,154,0.3); }
   .card.fmt-dvd:hover    { box-shadow: -2px 0 12px rgba(139,63,207,0.3); }
   .card.fmt-vhs:hover    { box-shadow: -2px 0 12px rgba(39,168,95,0.3); }
+  .card.fmt-books:hover  { box-shadow: -2px 0 12px rgba(255,109,0,0.3); }
 
   .card-format {
     display: inline-flex; align-items: center; gap: 0.3rem;
@@ -295,6 +299,7 @@
   .format-dot.bluray  { background: var(--teal); }
   .format-dot.dvd     { background: var(--purple); }
   .format-dot.vhs     { background: var(--green); }
+  .format-dot.books   { background: var(--orange); }
 
   .card-title {
     font-family: var(--font-title);
@@ -587,6 +592,7 @@
       <button class="filter-btn bluray" data-format="Blu-ray" onclick="setFilter('Blu-ray',this)">Blu-ray</button>
       <button class="filter-btn dvd" data-format="DVD" onclick="setFilter('DVD',this)">DVD</button>
       <button class="filter-btn vhs" data-format="VHS" onclick="setFilter('VHS',this)">VHS</button>
+      <button class="filter-btn books" data-format="Books" onclick="setFilter('Books',this)">Books</button>
     </div>
   </div>
 
@@ -615,6 +621,7 @@
         <option>Blu-ray</option>
         <option>DVD</option>
         <option>VHS</option>
+        <option>Books</option>
       </select>
     </div>
 
@@ -681,6 +688,7 @@
             <option>Blu-ray</option>
             <option>DVD</option>
             <option>VHS</option>
+            <option>Books</option>
           </select>
         </div>
         <div class="form-row">
@@ -689,7 +697,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>Artist / Director</label>
+        <label>Artist / Director / Author</label>
         <input id="fArtist" type="text" placeholder="Who made it">
       </div>
       <div class="form-row">
@@ -749,7 +757,7 @@ async function loadItems() {
 // ── RENDER ────────────────────────────────────────────────
 function formatClass(fmt) {
   if (!fmt) return '';
-  return fmt.toLowerCase().replace('-','');
+  return fmt.toLowerCase().replace(/[^a-z]/g, '');
 }
 
 function renderGrid() {
