@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.6.0 — RETRO THEME */
+  /* APP_VERSION: 1.7.0 — RETRO THEME + SCANNER */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -569,6 +569,7 @@
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
+      <button class="btn-bulk" onclick="openScanner()" id="btnScan">⬛ Scan</button>
       <button class="btn-bulk" onclick="openBulk()" id="btnBulkOpen">Bulk Entry</button>
       <button class="btn-add" onclick="openModal()">+ Add Item</button>
     </div>
@@ -636,6 +637,27 @@
         <button class="btn-bulk" onclick="closeBulk()">Cancel</button>
         <button class="btn-save" id="btnBulkSave" onclick="saveBulk()" disabled>Import Items</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCANNER -->
+<div class="modal-overlay" id="scannerOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-inner" style="align-items:center;gap:0.75rem">
+      <div class="modal-title" style="width:100%;display:flex;justify-content:space-between;align-items:center">
+        <span>Scan Barcode</span>
+        <button class="btn-cancel" onclick="closeScanner()" style="padding:0.3rem 0.7rem;font-size:0.4rem">✕ Close</button>
+      </div>
+      <div id="scannerStatus" style="font-family:var(--font-mono);font-size:0.42rem;color:var(--text-dim);letter-spacing:0.1em;text-align:center">
+        Point camera at barcode on CD, Blu-ray, DVD, or vinyl sleeve
+      </div>
+      <div style="position:relative;width:100%;max-width:400px;border:2px solid var(--neon-dim);border-radius:var(--radius);overflow:hidden;background:#000">
+        <video id="scannerVideo" style="width:100%;display:block;max-height:300px;object-fit:cover" playsinline autoplay muted></video>
+        <!-- aim line -->
+        <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:rgba(245,230,66,0.6);transform:translateY(-50%);pointer-events:none"></div>
+      </div>
+      <div id="scannerResult" style="font-family:var(--font-mono);font-size:0.4rem;color:var(--text-dim);letter-spacing:0.08em;text-align:center;min-height:1rem"></div>
     </div>
   </div>
 </div>
@@ -987,9 +1009,171 @@ async function saveBulk() {
   }
 }
 
+// ── BARCODE SCANNER ──────────────────────────────────────
+let scannerStream = null;
+let scannerInterval = null;
+let scannerActive = false;
+
+async function openScanner() {
+  document.getElementById('scannerOverlay').classList.add('open');
+  document.getElementById('scannerStatus').textContent = 'Starting camera…';
+  document.getElementById('scannerResult').textContent = '';
+  scannerActive = true;
+
+  // Load ZXing library dynamically
+  if (!window.ZXing) {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.21.3/zxing.min.js';
+    script.onload = startCamera;
+    script.onerror = () => {
+      document.getElementById('scannerStatus').textContent = 'Failed to load scanner library. Check your connection.';
+    };
+    document.head.appendChild(script);
+  } else {
+    startCamera();
+  }
+}
+
+async function startCamera() {
+  try {
+    scannerStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('scannerVideo');
+    video.srcObject = scannerStream;
+    await video.play();
+    document.getElementById('scannerStatus').textContent = 'Point camera at barcode…';
+    startDecoding();
+  } catch(e) {
+    document.getElementById('scannerStatus').textContent = 'Camera access denied. Please allow camera permission and try again.';
+    console.error(e);
+  }
+}
+
+function startDecoding() {
+  const video = document.getElementById('scannerVideo');
+  const hints = new Map();
+  const formats = [
+    ZXing.BarcodeFormat.EAN_13,
+    ZXing.BarcodeFormat.EAN_8,
+    ZXing.BarcodeFormat.UPC_A,
+    ZXing.BarcodeFormat.UPC_E,
+  ];
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+  const reader = new ZXing.MultiFormatReader();
+  reader.setHints(hints);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  scannerInterval = setInterval(() => {
+    if (!scannerActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    try {
+      const luminanceSource = new ZXing.RGBLuminanceSource(imageData.data, canvas.width, canvas.height);
+      const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+      const result = reader.decode(binaryBitmap);
+      if (result) {
+        clearInterval(scannerInterval);
+        scannerActive = false;
+        const upc = result.getText();
+        document.getElementById('scannerStatus').textContent = `Barcode detected: ${upc}`;
+        document.getElementById('scannerResult').textContent = 'Looking up…';
+        lookupUPC(upc);
+      }
+    } catch(e) {
+      // NotFoundException is normal when no barcode is in frame — ignore
+    }
+  }, 250);
+}
+
+async function lookupUPC(upc) {
+  try {
+    const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${upc}`);
+    const data = await res.json();
+
+    if (!data.items || data.items.length === 0) {
+      document.getElementById('scannerResult').textContent = 'Not found in database — enter manually.';
+      setTimeout(() => {
+        closeScanner();
+        openModal();
+      }, 1500);
+      return;
+    }
+
+    const item = data.items[0];
+    const title = item.title || '';
+    const brand = item.brand || '';
+
+    // Duplicate check — partial case-insensitive match
+    const titleLower = title.toLowerCase();
+    const duplicate = items.find(i =>
+      titleLower.includes(i.title.toLowerCase()) ||
+      i.title.toLowerCase().includes(titleLower)
+    );
+
+    if (duplicate) {
+      document.getElementById('scannerResult').textContent = '';
+      document.getElementById('scannerStatus').textContent = `Already on your shelf: ${duplicate.title}`;
+      setTimeout(closeScanner, 2500);
+      return;
+    }
+
+    // Not a duplicate — pre-fill form
+    document.getElementById('scannerResult').textContent = `Found: ${title}`;
+
+    // Try to guess format from category
+    let format = '';
+    const cat = (item.category || '').toLowerCase();
+    const desc = (item.description || '').toLowerCase();
+    if (cat.includes('vinyl') || desc.includes('vinyl') || desc.includes('record')) format = 'Vinyl';
+    else if (cat.includes('blu') || desc.includes('blu-ray') || desc.includes('bluray')) format = 'Blu-ray';
+    else if (cat.includes('dvd') || desc.includes('dvd')) format = 'DVD';
+    else if (cat.includes('cd') || desc.includes('music cd') || desc.includes('audio cd')) format = 'CD';
+
+    // Extract year from description if possible
+    const yearMatch = (item.description || '').match(/\b(19|20)\d{2}\b/);
+    const year = yearMatch ? parseInt(yearMatch[0]) : null;
+
+    setTimeout(() => {
+      closeScanner();
+      openModal();
+      document.getElementById('fTitle').value = title;
+      document.getElementById('fArtist').value = brand;
+      document.getElementById('fFormat').value = format;
+      if (year) document.getElementById('fYear').value = year;
+    }, 800);
+
+  } catch(e) {
+    document.getElementById('scannerResult').textContent = 'Lookup failed — enter manually.';
+    console.error(e);
+    setTimeout(() => {
+      closeScanner();
+      openModal();
+    }, 1500);
+  }
+}
+
+function closeScanner() {
+  scannerActive = false;
+  clearInterval(scannerInterval);
+  if (scannerStream) {
+    scannerStream.getTracks().forEach(t => t.stop());
+    scannerStream = null;
+  }
+  document.getElementById('scannerVideo').srcObject = null;
+  document.getElementById('scannerOverlay').classList.remove('open');
+  document.getElementById('scannerStatus').textContent = 'Point camera at barcode on CD, Blu-ray, DVD, or vinyl sleeve';
+  document.getElementById('scannerResult').textContent = '';
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
+    if (document.getElementById('scannerOverlay').classList.contains('open')) closeScanner();
+    else if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
     else closeModal();
   }
 });
