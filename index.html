@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.7.2 — RETRO THEME + SCANNER + BOOKS */
+  /* APP_VERSION: 1.7.3 — RETRO THEME + SCANNER + BOOKS */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -1078,70 +1078,109 @@ function startDecoding() {
 }
 
 async function lookupUPC(upc) {
+  document.getElementById('scannerResult').textContent = 'Searching databases…';
+
+  let found = null;
+
+  // 1. Try Open Library (great for books via ISBN)
   try {
-    const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${upc}`);
+    const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${upc}&format=json&jscmd=data`);
     const data = await res.json();
-
-    if (!data.items || data.items.length === 0) {
-      document.getElementById('scannerResult').textContent = 'Not found in database — enter manually.';
-      setTimeout(() => {
-        closeScanner();
-        openModal();
-      }, 1500);
-      return;
+    const key = `ISBN:${upc}`;
+    if (data[key]) {
+      const book = data[key];
+      const authors = book.authors ? book.authors.map(a => a.name).join(', ') : '';
+      const year = book.publish_date ? book.publish_date.match(/\d{4}/) : null;
+      found = {
+        title: book.title || '',
+        artist: authors,
+        format: 'Books',
+        genre: book.subjects ? book.subjects[0]?.name || '' : '',
+        year: year ? parseInt(year[0]) : null,
+      };
     }
+  } catch(e) { console.log('Open Library miss:', e); }
 
-    const item = data.items[0];
-    const title = item.title || '';
-    const brand = item.brand || '';
-
-    // Duplicate check — partial case-insensitive match
-    const titleLower = title.toLowerCase();
-    const duplicate = items.find(i =>
-      titleLower.includes(i.title.toLowerCase()) ||
-      i.title.toLowerCase().includes(titleLower)
-    );
-
-    if (duplicate) {
-      document.getElementById('scannerResult').textContent = '';
-      document.getElementById('scannerStatus').textContent = `Already on your shelf: ${duplicate.title}`;
-      setTimeout(closeScanner, 2500);
-      return;
-    }
-
-    // Not a duplicate — pre-fill form
-    document.getElementById('scannerResult').textContent = `Found: ${title}`;
-
-    // Try to guess format from category
-    let format = '';
-    const cat = (item.category || '').toLowerCase();
-    const desc = (item.description || '').toLowerCase();
-    if (cat.includes('vinyl') || desc.includes('vinyl') || desc.includes('record')) format = 'Vinyl';
-    else if (cat.includes('blu') || desc.includes('blu-ray') || desc.includes('bluray')) format = 'Blu-ray';
-    else if (cat.includes('dvd') || desc.includes('dvd')) format = 'DVD';
-    else if (cat.includes('cd') || desc.includes('music cd') || desc.includes('audio cd')) format = 'CD';
-
-    // Extract year from description if possible
-    const yearMatch = (item.description || '').match(/\b(19|20)\d{2}\b/);
-    const year = yearMatch ? parseInt(yearMatch[0]) : null;
-
-    setTimeout(() => {
-      closeScanner();
-      openModal();
-      document.getElementById('fTitle').value = title;
-      document.getElementById('fArtist').value = brand;
-      document.getElementById('fFormat').value = format;
-      if (year) document.getElementById('fYear').value = year;
-    }, 800);
-
-  } catch(e) {
-    document.getElementById('scannerResult').textContent = 'Lookup failed — enter manually.';
-    console.error(e);
-    setTimeout(() => {
-      closeScanner();
-      openModal();
-    }, 1500);
+  // 2. Try MusicBrainz (great for CDs)
+  if (!found) {
+    try {
+      const res = await fetch(`https://musicbrainz.org/ws/2/release?query=barcode:${upc}&fmt=json&limit=1`, {
+        headers: { 'User-Agent': 'BookOfRao/1.0 (personal media library)' }
+      });
+      const data = await res.json();
+      if (data.releases && data.releases.length > 0) {
+        const release = data.releases[0];
+        const artist = release['artist-credit'] ? release['artist-credit'].map(a => a.name || a.artist?.name).join(', ') : '';
+        const year = release.date ? release.date.substring(0, 4) : null;
+        found = {
+          title: release.title || '',
+          artist,
+          format: 'CD',
+          genre: '',
+          year: year ? parseInt(year) : null,
+        };
+      }
+    } catch(e) { console.log('MusicBrainz miss:', e); }
   }
+
+  // 3. Try UPC Item DB as final fallback
+  if (!found) {
+    try {
+      const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${upc}`);
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        const item = data.items[0];
+        const cat = (item.category || '').toLowerCase();
+        const desc = (item.description || '').toLowerCase();
+        let format = '';
+        if (cat.includes('vinyl') || desc.includes('vinyl')) format = 'Vinyl';
+        else if (cat.includes('blu') || desc.includes('blu-ray')) format = 'Blu-ray';
+        else if (cat.includes('dvd') || desc.includes('dvd')) format = 'DVD';
+        else if (cat.includes('cd') || desc.includes('audio cd')) format = 'CD';
+        else if (cat.includes('book') || desc.includes('book')) format = 'Books';
+        const yearMatch = (item.description || '').match(/\b(19|20)\d{2}\b/);
+        found = {
+          title: item.title || '',
+          artist: item.brand || '',
+          format,
+          genre: '',
+          year: yearMatch ? parseInt(yearMatch[0]) : null,
+        };
+      }
+    } catch(e) { console.log('UPC Item DB miss:', e); }
+  }
+
+  if (!found) {
+    document.getElementById('scannerResult').textContent = 'Not found in any database — enter manually.';
+    setTimeout(() => { closeScanner(); openModal(); }, 1800);
+    return;
+  }
+
+  // Duplicate check — partial case-insensitive match
+  const titleLower = found.title.toLowerCase();
+  const duplicate = items.find(i =>
+    titleLower.includes(i.title.toLowerCase()) ||
+    i.title.toLowerCase().includes(titleLower)
+  );
+
+  if (duplicate) {
+    document.getElementById('scannerResult').textContent = '';
+    document.getElementById('scannerStatus').textContent = `Already on your shelf: ${duplicate.title}`;
+    setTimeout(closeScanner, 2500);
+    return;
+  }
+
+  // Pre-fill form
+  document.getElementById('scannerResult').textContent = `Found: ${found.title}`;
+  setTimeout(() => {
+    closeScanner();
+    openModal();
+    document.getElementById('fTitle').value = found.title;
+    document.getElementById('fArtist').value = found.artist || '';
+    document.getElementById('fFormat').value = found.format || '';
+    if (found.year) document.getElementById('fYear').value = found.year;
+    if (found.genre) document.getElementById('fGenre').value = found.genre;
+  }, 800);
 }
 
 function closeScanner() {
