@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.9.2 — RETRO + SCANNER + FORMAT SETTINGS + GATE */
+  /* APP_VERSION: 1.9.3 — RETRO + SCANNER + FORMAT SETTINGS + GATE */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -673,11 +673,13 @@
     color: var(--neon); text-transform: uppercase;
     letter-spacing: 0.12em;
     text-shadow: 0 0 8px var(--neon-glow);
+    margin-bottom: 0.3rem;
   }
   .settings-subtitle {
     font-family: var(--font-mono);
     font-size: 0.38rem; color: var(--text-dim);
-    letter-spacing: 0.1em; margin-top: -0.8rem;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
   }
   .format-toggles { display: flex; flex-direction: column; gap: 0.6rem; }
   .format-toggle {
@@ -839,7 +841,7 @@
 <!-- SETTINGS -->
 <div class="settings-overlay" id="settingsOverlay" onclick="handleSettingsOverlayClick(event)">
   <div class="settings-panel">
-    <div>
+    <div style="display:flex;flex-direction:column;gap:0.3rem;padding-bottom:0.25rem;border-bottom:1px solid var(--bg-soft)">
       <div class="settings-title">Settings</div>
       <div class="settings-subtitle">Choose which formats appear in your library</div>
     </div>
