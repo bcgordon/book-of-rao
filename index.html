@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 1.9.3 — RETRO + SCANNER + FORMAT SETTINGS + GATE */
+  /* APP_VERSION: 2.0.0 — EARN IT RULES */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -645,6 +645,181 @@
     letter-spacing: 0.5em;
   }
 
+  /* ── PLAY TRACKING ── */
+  .card-play-btn {
+    position: absolute; bottom: 0.6rem; right: 0.6rem;
+    background: var(--bg-mid);
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
+    font-size: 0.4rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex; align-items: center; gap: 0.3rem;
+    white-space: nowrap;
+  }
+  .card-play-btn:hover { border-color: var(--neon); color: var(--neon); }
+  .card-play-btn.played { border-color: var(--neon-dim); color: var(--neon-dim); }
+  .card-play-count {
+    font-family: var(--font-mono);
+    font-size: 0.36rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-top: 0.15rem;
+  }
+
+  /* ── RULES PANEL ── */
+  .rules-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50; padding: 1rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .rules-overlay.open { opacity: 1; pointer-events: all; }
+  .rules-panel {
+    background: var(--bg-mid);
+    border: 2px solid var(--neon-dim);
+    border-radius: var(--radius);
+    width: 100%; max-width: 520px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    transform: translateY(12px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 0 30px var(--neon-glow);
+    overflow: hidden;
+  }
+  .rules-overlay.open .rules-panel { transform: translateY(0); }
+  .rules-inner {
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.2rem;
+    overflow-y: auto; flex: 1;
+  }
+  .rules-footer {
+    padding: 0.85rem 1.5rem;
+    border-top: 1px solid var(--bg-soft);
+    display: flex; justify-content: flex-end; gap: 0.75rem;
+    flex-shrink: 0; background: var(--bg-mid);
+  }
+  .rules-title {
+    font-family: var(--font-title);
+    font-weight: 700; font-size: 0.85rem;
+    color: var(--neon); text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 8px var(--neon-glow);
+  }
+  .rules-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.08em; margin-top: 0.3rem;
+  }
+
+  /* Progress bars */
+  .rule-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--text-dim);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .rule-card-header {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 0.5rem;
+  }
+  .rule-card-left { display: flex; align-items: center; gap: 0.5rem; }
+  .rule-format-label {
+    font-family: var(--font-title);
+    font-weight: 600; font-size: 0.6rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text);
+  }
+  .rule-status {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+  .rule-status.earned { color: var(--neon); }
+  .progress-bar-wrap {
+    width: 100%; height: 6px;
+    background: var(--bg-mid);
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; border-radius: 3px;
+    transition: width 0.4s ease;
+    min-width: 3px;
+  }
+  .rule-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .rule-input {
+    background: var(--bg-mid);
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.45rem;
+    padding: 0.3rem 0.5rem;
+    width: 60px; text-align: center;
+    border-radius: var(--radius); outline: none;
+  }
+  .rule-input:focus { border-color: var(--neon-dim); }
+  .rule-label {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+  .rule-save-btn {
+    background: var(--neon);
+    border: none; color: #000;
+    font-family: var(--font-mono);
+    font-size: 0.38rem; letter-spacing: 0.08em;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius); cursor: pointer;
+    transition: all var(--transition);
+  }
+  .rule-save-btn:hover { background: #fff; }
+  .rule-reset-btn {
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 0.36rem; letter-spacing: 0.06em;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius); cursor: pointer;
+    transition: all var(--transition);
+  }
+  .rule-reset-btn:hover { border-color: var(--accent-vinyl); color: var(--accent-vinyl); }
+  .no-rules-msg {
+    font-family: var(--font-mono);
+    font-size: 0.45rem; color: var(--text-dim);
+    letter-spacing: 0.1em; text-align: center;
+    padding: 1rem 0;
+  }
+  .new-rule-section {
+    border-top: 1px solid var(--bg-soft);
+    padding-top: 1rem;
+  }
+  .new-rule-label {
+    font-family: var(--font-mono);
+    font-size: 0.4rem; color: var(--text-dim);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .new-rule-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+  }
+  .new-rule-select {
+    background: var(--bg-soft);
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.45rem; padding: 0.4rem 0.6rem;
+    border-radius: var(--radius); outline: none; cursor: pointer;
+  }
+  .new-rule-select:focus { border-color: var(--neon-dim); }
+  .new-rule-select option { background: var(--bg-mid); }
+
   /* ── SETTINGS PANEL ── */
   .settings-overlay {
     position: fixed; inset: 0;
@@ -758,6 +933,9 @@
       <div class="app-count" id="countLabel">— items</div>
     </div>
     <div style="display:flex;gap:0.5rem;align-items:center">
+      <button class="theme-toggle" onclick="openRules()" title="Earn It Rules">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      </button>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
@@ -834,6 +1012,41 @@
         <button class="btn-bulk" onclick="closeBulk()">Cancel</button>
         <button class="btn-save" id="btnBulkSave" onclick="saveBulk()" disabled>Import Items</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div class="rules-overlay" id="rulesOverlay" onclick="handleRulesOverlayClick(event)">
+  <div class="rules-panel">
+    <div class="rules-inner" id="rulesInner">
+      <div>
+        <div class="rules-title">Earn It</div>
+        <div class="rules-subtitle">Play your collection to earn the right to buy more</div>
+      </div>
+      <div id="rulesList"></div>
+      <div class="new-rule-section">
+        <div class="new-rule-label">Add a new rule</div>
+        <div class="new-rule-row">
+          <span class="rule-label">Before buying</span>
+          <select class="new-rule-select" id="newRuleFormat">
+            <option value="">format…</option>
+            <option>Vinyl</option>
+            <option>CD</option>
+            <option>Blu-ray</option>
+            <option>DVD</option>
+            <option>VHS</option>
+            <option>Books</option>
+          </select>
+          <span class="rule-label">I must play/use</span>
+          <input class="rule-input" id="newRulePlays" type="number" min="1" max="999" placeholder="20">
+          <span class="rule-label">I own</span>
+          <button class="rule-save-btn" onclick="addRule()">Add Rule</button>
+        </div>
+      </div>
+    </div>
+    <div class="rules-footer">
+      <button class="btn-cancel" onclick="closeRules()">Close</button>
     </div>
   </div>
 </div>
@@ -1026,6 +1239,7 @@ let editingId = null;
     app.style.display = 'block';
     setTimeout(() => gate.remove(), 600);
     loadItems();
+    loadRules();
     applyFormatSettings();
   }
 
@@ -1102,6 +1316,11 @@ function renderGrid() {
       <div class="card-title">${esc(it.title)}</div>
       ${it.artist_director ? `<div class="card-artist">${esc(it.artist_director)}</div>` : ''}
       ${it.genre ? `<div class="card-genre">${esc(it.genre)}</div>` : ''}
+      ${rules[it.format] ? `
+        <div class="card-play-count">${it.play_count > 0 ? `▶ played ${it.play_count}×${it.last_played ? ' · ' + it.last_played : ''}` : '▶ not yet played'}</div>
+        <button class="card-play-btn${it.play_count > 0 ? ' played' : ''}" onclick="logPlay(event,'${it.id}')" title="Log a play">
+          ▶ Play
+        </button>` : ''}
     </div>
   `).join('')}</div>`;
 }
@@ -1577,9 +1796,156 @@ function handleSettingsOverlayClick(e) {
   if (e.target === document.getElementById('settingsOverlay')) closeSettings();
 }
 
+// ── EARN IT RULES ─────────────────────────────────────────
+let rules = {};
+
+async function loadRules() {
+  try {
+    const data = await sb(`shelf_rules?select=*`);
+    rules = {};
+    if (data) data.forEach(r => { rules[r.format] = r; });
+  } catch(e) { console.error('Error loading rules:', e); }
+}
+
+async function addRule() {
+  const format = document.getElementById('newRuleFormat').value;
+  const plays  = parseInt(document.getElementById('newRulePlays').value);
+  if (!format || !plays || plays < 1) { showToast('Pick a format and number of plays'); return; }
+  if (rules[format]) { showToast(`A rule for ${format} already exists — edit it below`); return; }
+  try {
+    const created = await sb('shelf_rules', { method: 'POST', body: JSON.stringify({ format, plays_required: plays }) });
+    if (created && created[0]) rules[created[0].format] = created[0];
+    document.getElementById('newRuleFormat').value = '';
+    document.getElementById('newRulePlays').value  = '';
+    renderRules();
+    renderGrid();
+    showToast(`Rule added for ${format}`);
+  } catch(e) { showToast('Error saving rule'); console.error(e); }
+}
+
+async function updateRule(format, plays) {
+  const rule = rules[format];
+  if (!rule) return;
+  try {
+    await sb(`shelf_rules?id=eq.${rule.id}`, { method: 'PATCH', body: JSON.stringify({ plays_required: plays }) });
+    rules[format].plays_required = plays;
+    renderRules();
+    showToast('Rule updated');
+  } catch(e) { showToast('Error updating rule'); console.error(e); }
+}
+
+async function deleteRule(format) {
+  const rule = rules[format];
+  if (!rule) return;
+  if (!confirm(`Remove the ${format} rule?`)) return;
+  try {
+    await sb(`shelf_rules?id=eq.${rule.id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    delete rules[format];
+    renderRules();
+    renderGrid();
+    showToast(`${format} rule removed`);
+  } catch(e) { showToast('Error removing rule'); console.error(e); }
+}
+
+async function logPlay(e, id) {
+  e.stopPropagation();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const newCount = (item.play_count || 0) + 1;
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    await sb(`shelf_items?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ play_count: newCount, last_played: today })
+    });
+    item.play_count = newCount;
+    item.last_played = today;
+    renderGrid();
+    showToast(`▶ Logged — ${esc(item.title)}`);
+    if (rules[item.format]) renderRules();
+  } catch(e) { showToast('Error logging play'); console.error(e); }
+}
+
+function getPlaysSinceReset(format) {
+  return items.filter(i => i.format === format && (i.play_count || 0) > 0)
+              .reduce((sum, i) => sum + (i.play_count || 0), 0);
+}
+
+function renderRules() {
+  const list = document.getElementById('rulesList');
+  if (!list) return;
+  const ruleFormats = Object.keys(rules);
+  if (ruleFormats.length === 0) {
+    list.innerHTML = '<div class="no-rules-msg">No rules yet — add one below</div>';
+    return;
+  }
+  const formatColors = {
+    'Vinyl':'var(--red)','CD':'var(--blue)','Blu-ray':'var(--teal)',
+    'DVD':'var(--purple)','VHS':'var(--green)','Books':'var(--orange)'
+  };
+  list.innerHTML = ruleFormats.map(format => {
+    const rule   = rules[format];
+    const played = getPlaysSinceReset(format);
+    const total  = rule.plays_required;
+    const pct    = Math.min(100, Math.round((played / total) * 100));
+    const earned = played >= total;
+    const color  = formatColors[format] || 'var(--neon)';
+    return `
+    <div class="rule-card">
+      <div class="rule-card-header">
+        <div class="rule-card-left">
+          <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <div class="rule-format-label">${format}</div>
+        </div>
+        <div class="rule-status ${earned ? 'earned' : ''}">
+          ${earned ? '✓ EARNED — go buy one!' : `${played} / ${total} plays`}
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="rule-actions">
+        <span class="rule-label">plays needed:</span>
+        <input class="rule-input" type="number" min="1" max="999" value="${total}" id="rule-input-${format}">
+        <button class="rule-save-btn" onclick="updateRule('${format}', parseInt(document.getElementById('rule-input-${format}').value))">Save</button>
+        <button class="rule-reset-btn" onclick="resetRuleProgress('${format}')">Reset</button>
+        <button class="rule-reset-btn" onclick="deleteRule('${format}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function resetRuleProgress(format) {
+  if (!confirm(`Reset all play counts for ${format}? This cannot be undone.`)) return;
+  const toReset = items.filter(i => i.format === format);
+  try {
+    await Promise.all(toReset.map(i =>
+      sb(`shelf_items?id=eq.${i.id}`, { method: 'PATCH', body: JSON.stringify({ play_count: 0, last_played: null }) })
+    ));
+    toReset.forEach(i => { i.play_count = 0; i.last_played = null; });
+    renderRules();
+    renderGrid();
+    showToast(`${format} play counts reset`);
+  } catch(e) { showToast('Error resetting'); console.error(e); }
+}
+
+function openRules() {
+  renderRules();
+  document.getElementById('rulesOverlay').classList.add('open');
+}
+
+function closeRules() {
+  document.getElementById('rulesOverlay').classList.remove('open');
+}
+
+function handleRulesOverlayClick(e) {
+  if (e.target === document.getElementById('rulesOverlay')) closeRules();
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
+    if (document.getElementById('rulesOverlay').classList.contains('open')) closeRules();
+    else if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
     else if (document.getElementById('scannerOverlay').classList.contains('open')) closeScanner();
     else if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
     else closeModal();
