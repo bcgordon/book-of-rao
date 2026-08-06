@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.0.0 — EARN IT RULES */
+  /* APP_VERSION: 2.1.0 — WISH LIST */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -820,6 +820,135 @@
   .new-rule-select:focus { border-color: var(--neon-dim); }
   .new-rule-select option { background: var(--bg-mid); }
 
+  /* ── WISH LIST ── */
+  #wishPanel {
+    display: none; position: relative; z-index: 1;
+    padding: 1.5rem; min-height: calc(100vh - 80px);
+    flex-direction: column; gap: 1.25rem;
+  }
+  #wishPanel.open { display: flex; }
+
+  .wish-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .wish-title {
+    font-family: var(--font-title);
+    font-weight: 700; font-size: 0.85rem;
+    color: var(--neon); text-transform: uppercase; letter-spacing: 0.12em;
+    text-shadow: 0 0 8px var(--neon-glow);
+  }
+  .wish-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.08em; margin-top: 0.25rem;
+  }
+
+  .wish-add-form {
+    background: var(--bg-mid);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .wish-add-title {
+    font-family: var(--font-mono);
+    font-size: 0.4rem; color: var(--text-dim);
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .wish-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .wish-form-row.full { grid-template-columns: 1fr; }
+  .wish-input {
+    background: var(--bg-soft);
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.5rem; padding: 0.5rem 0.65rem;
+    outline: none; transition: border-color var(--transition);
+    width: 100%; border-radius: var(--radius);
+  }
+  .wish-input:focus { border-color: var(--neon-dim); box-shadow: 0 0 6px var(--neon-glow); }
+  .wish-input::placeholder { color: var(--text-dim); }
+  .wish-select {
+    background: var(--bg-soft);
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.5rem; padding: 0.5rem 0.65rem;
+    outline: none; cursor: pointer;
+    width: 100%; border-radius: var(--radius);
+    transition: border-color var(--transition);
+  }
+  .wish-select:focus { border-color: var(--neon-dim); }
+  .wish-select option { background: var(--bg-mid); }
+
+  .wish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.75rem;
+  }
+  .wish-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-soft);
+    border-left: 4px solid var(--neon-dim);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    display: flex; flex-direction: column; gap: 0.3rem;
+    position: relative;
+    transition: all var(--transition);
+  }
+  .wish-card:hover { background: var(--bg-soft); border-left-color: var(--neon); }
+  .wish-card-format {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--text-dim);
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .wish-card-title {
+    font-family: var(--font-title);
+    font-weight: 600; font-size: 0.85rem;
+    color: var(--text); text-transform: uppercase; letter-spacing: 0.04em;
+    line-height: 1.25;
+  }
+  .wish-card-artist {
+    font-family: var(--font-body);
+    font-size: 0.6rem; color: var(--text-mid);
+  }
+  .wish-card-notes {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.06em; margin-top: 0.15rem;
+    font-style: italic;
+  }
+  .wish-card-actions {
+    position: absolute; top: 0.6rem; right: 0.6rem;
+    display: flex; gap: 0.3rem;
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .wish-card:hover .wish-card-actions { opacity: 1; }
+  .wish-found-btn {
+    background: var(--neon);
+    border: none; color: #000;
+    font-family: var(--font-mono);
+    font-size: 0.35rem; letter-spacing: 0.08em;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius); cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .wish-found-btn:hover { background: #fff; }
+  .wish-empty {
+    text-align: center; padding: 3rem 2rem; color: var(--text-dim);
+  }
+  .wish-empty p:first-child {
+    font-family: var(--font-title);
+    font-size: 1rem; color: var(--text-dim);
+    margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .wish-empty p:last-child { font-family: var(--font-mono); font-size: 0.5rem; }
+  .wish-count {
+    font-family: var(--font-mono);
+    font-size: 0.38rem; color: var(--text-dim);
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
   /* ── SETTINGS PANEL ── */
   .settings-overlay {
     position: fixed; inset: 0;
@@ -943,6 +1072,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
       <button class="btn-bulk" onclick="openScanner()" id="btnScan">⬛ Scan</button>
+      <button class="btn-bulk" onclick="openWish()" id="btnWishOpen">★ Wish List</button>
       <button class="btn-bulk" onclick="openBulk()" id="btnBulkOpen">Bulk Entry</button>
       <button class="btn-add" onclick="openModal()">+ Add Item</button>
     </div>
@@ -1147,7 +1277,48 @@
   </div>
 </div>
 
-<!-- MODAL -->
+  <!-- WISH LIST -->
+  <div id="wishPanel">
+    <div class="wish-header">
+      <div>
+        <div class="wish-title">★ Wish List</div>
+        <div class="wish-subtitle">Physical media you're hunting for</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <div class="wish-count" id="wishCount">— items</div>
+        <button class="btn-cancel" onclick="closeWish()">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- Add form -->
+    <div class="wish-add-form">
+      <div class="wish-add-title">Add to wish list</div>
+      <div class="wish-form-row full">
+        <input class="wish-input" id="wTitle" type="text" placeholder="Title *">
+      </div>
+      <div class="wish-form-row">
+        <select class="wish-select" id="wFormat">
+          <option value="">Format…</option>
+          <option>Vinyl</option>
+          <option>CD</option>
+          <option>Blu-ray</option>
+          <option>DVD</option>
+          <option>VHS</option>
+          <option>Books</option>
+        </select>
+        <input class="wish-input" id="wArtist" type="text" placeholder="Artist / Director / Author">
+      </div>
+      <div class="wish-form-row full">
+        <input class="wish-input" id="wNotes" type="text" placeholder="Notes — e.g. original pressing, max $20, signed copy…">
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn-save" onclick="addWishItem()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Wish items grid -->
+    <div id="wishGrid"></div>
+  </div>
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-inner">
@@ -1200,7 +1371,7 @@
 const SUPABASE_URL = 'https://pknnhharadotkdvvkdoh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2Fw-nRJT74bovs1JSTBx_Q_zR-DgCPm';
 const TABLE        = 'shelf_items';
-const PASSPHRASE   = 'theshelf';
+const PASSPHRASE   = 'shelf';
 
 let items = [];
 let activeFilter = 'All';
@@ -1240,6 +1411,7 @@ let editingId = null;
     setTimeout(() => gate.remove(), 600);
     loadItems();
     loadRules();
+    loadWishItems();
     applyFormatSettings();
   }
 
@@ -1942,11 +2114,135 @@ function handleRulesOverlayClick(e) {
   if (e.target === document.getElementById('rulesOverlay')) closeRules();
 }
 
+// ── WISH LIST ─────────────────────────────────────────────
+let wishItems = [];
+
+async function loadWishItems() {
+  try {
+    wishItems = await sb(`wish_items?order=format.asc,title.asc&select=*`) || [];
+  } catch(e) { console.error('Error loading wish list:', e); }
+}
+
+function openWish() {
+  document.getElementById('gridWrap').style.display = 'none';
+  document.querySelector('.controls').style.display = 'none';
+  document.getElementById('wishPanel').classList.add('open');
+  document.getElementById('btnWishOpen').style.display = 'none';
+  loadWishItems().then(renderWishGrid);
+}
+
+function closeWish() {
+  document.getElementById('wishPanel').classList.remove('open');
+  document.getElementById('gridWrap').style.display = '';
+  document.querySelector('.controls').style.display = '';
+  document.getElementById('btnWishOpen').style.display = '';
+  document.getElementById('wTitle').value = '';
+  document.getElementById('wFormat').value = '';
+  document.getElementById('wArtist').value = '';
+  document.getElementById('wNotes').value = '';
+}
+
+async function addWishItem() {
+  const title = document.getElementById('wTitle').value.trim();
+  if (!title) { showToast('Title is required'); return; }
+  const payload = {
+    title,
+    format: document.getElementById('wFormat').value || null,
+    artist_director: document.getElementById('wArtist').value.trim() || null,
+    notes: document.getElementById('wNotes').value.trim() || null,
+  };
+  try {
+    const created = await sb('wish_items', { method: 'POST', body: JSON.stringify(payload) });
+    if (created && created[0]) wishItems.push(created[0]);
+    wishItems.sort((a,b) => (a.format||'').localeCompare(b.format||'') || a.title.localeCompare(b.title));
+    document.getElementById('wTitle').value = '';
+    document.getElementById('wFormat').value = '';
+    document.getElementById('wArtist').value = '';
+    document.getElementById('wNotes').value = '';
+    renderWishGrid();
+    showToast('Added to wish list');
+  } catch(e) { showToast('Error adding item'); console.error(e); }
+}
+
+async function deleteWishItem(id) {
+  if (!confirm('Remove from wish list?')) return;
+  try {
+    await sb(`wish_items?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    wishItems = wishItems.filter(i => i.id !== id);
+    renderWishGrid();
+    showToast('Removed from wish list');
+  } catch(e) { showToast('Error removing item'); console.error(e); }
+}
+
+function foundWishItem(id) {
+  const item = wishItems.find(i => i.id === id);
+  if (!item) return;
+  // Pre-fill the Add Item modal and offer to delete from wish list after saving
+  closeWish();
+  openModal();
+  document.getElementById('fTitle').value  = item.title || '';
+  document.getElementById('fFormat').value = item.format || '';
+  document.getElementById('fArtist').value = item.artist_director || '';
+  document.getElementById('fNotes').value  = item.notes || '';
+  // Store wish id so we can remove it after save
+  window._foundWishId = id;
+  showToast('Fill in the details and save to add to your library');
+}
+
+// Hook into saveItem to remove from wish list if this came from "Found it"
+const _origSaveItem = saveItem;
+window.saveItem = async function() {
+  await _origSaveItem();
+  if (window._foundWishId) {
+    const wishId = window._foundWishId;
+    window._foundWishId = null;
+    try {
+      await sb(`wish_items?id=eq.${wishId}`, { method: 'DELETE', prefer: 'return=minimal' });
+      wishItems = wishItems.filter(i => i.id !== wishId);
+      showToast('Moved from wish list to your library ✓');
+    } catch(e) { console.error('Error removing from wish list:', e); }
+  }
+};
+
+function renderWishGrid() {
+  const count = wishItems.length;
+  document.getElementById('wishCount').textContent = `${count} item${count !== 1 ? 's' : ''}`;
+
+  const formatColors = {
+    'Vinyl':'var(--red)','CD':'var(--blue)','Blu-ray':'var(--teal)',
+    'DVD':'var(--purple)','VHS':'var(--green)','Books':'var(--orange)'
+  };
+
+  const grid = document.getElementById('wishGrid');
+  if (!count) {
+    grid.innerHTML = `<div class="wish-empty"><p>The wish list is empty.</p><p>Add something you're hunting for above.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = `<div class="wish-grid">${wishItems.map(it => `
+    <div class="wish-card" style="border-left-color:${formatColors[it.format] || 'var(--neon-dim)'}">
+      <div class="wish-card-actions">
+        <button class="wish-found-btn" onclick="foundWishItem('${it.id}')" title="Found it — add to library">✓ Found it</button>
+        <button class="icon-btn del" onclick="deleteWishItem('${it.id}')" title="Remove">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+      <div class="wish-card-format">
+        <span class="format-dot ${formatClass(it.format)}"></span>
+        ${it.format || 'Any format'}
+      </div>
+      <div class="wish-card-title">${esc(it.title)}</div>
+      ${it.artist_director ? `<div class="wish-card-artist">${esc(it.artist_director)}</div>` : ''}
+      ${it.notes ? `<div class="wish-card-notes">${esc(it.notes)}</div>` : ''}
+    </div>`).join('')}</div>`;
+}
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.getElementById('rulesOverlay').classList.contains('open')) closeRules();
     else if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
     else if (document.getElementById('scannerOverlay').classList.contains('open')) closeScanner();
+    else if (document.getElementById('wishPanel').classList.contains('open')) closeWish();
     else if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
     else closeModal();
   }
