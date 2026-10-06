@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.4.6 — TV GUIDE SCROLL FIX */
+  /* APP_VERSION: 2.4.7 — TV GUIDE SCROLL FIX */
 
   /* ── TOKENS ── */
   :root {
@@ -100,7 +100,7 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
     transition: background var(--transition), color var(--transition);
   }
 
@@ -765,7 +765,7 @@
     display: grid; grid-template-columns: 100px repeat(7, 1fr);
     gap: 1px; background: var(--border);
     border: 1px solid var(--border); border-radius: var(--radius-lg);
-    overflow: hidden; min-width: 600px;
+    overflow: hidden; min-width: 900px;
   }
   .tv-cell {
     background: var(--bg-card); padding: 0.45rem 0.55rem;
