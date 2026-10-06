@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.1.0 — WISH LIST */
+  /* APP_VERSION: 2.2.0 — LEAN HEADER + TABBED MODAL */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -1071,9 +1071,6 @@
       <button class="theme-toggle" onclick="openSettings()" title="Settings">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <button class="btn-bulk" onclick="openScanner()" id="btnScan">⬛ Scan</button>
-      <button class="btn-bulk" onclick="openWish()" id="btnWishOpen">★ Wish List</button>
-      <button class="btn-bulk" onclick="openBulk()" id="btnBulkOpen">Bulk Entry</button>
       <button class="btn-add" onclick="openModal()">+ Add Item</button>
     </div>
   </header>
@@ -1092,6 +1089,11 @@
       <button class="filter-btn vhs" data-format="VHS" onclick="setFilter('VHS',this)">VHS</button>
       <button class="filter-btn books" data-format="Books" onclick="setFilter('Books',this)">Books</button>
     </div>
+  </div>
+
+  <div style="padding:0.4rem 1.5rem;display:flex;gap:1rem;border-bottom:1px solid var(--bg-soft);background:var(--bg-mid)">
+    <button onclick="openWish()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">★ Wish List</button>
+    <button onclick="openBulk()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">⊞ Bulk Entry</button>
   </div>
 
   <div class="grid-wrap" id="gridWrap">
@@ -1256,26 +1258,7 @@
   </div>
 </div>
 
-<!-- SCANNER -->
-<div class="modal-overlay" id="scannerOverlay">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-inner" style="align-items:center;gap:0.75rem">
-      <div class="modal-title" style="width:100%;display:flex;justify-content:space-between;align-items:center">
-        <span>Scan Barcode</span>
-        <button class="btn-cancel" onclick="closeScanner()" style="padding:0.3rem 0.7rem;font-size:0.4rem">✕ Close</button>
-      </div>
-      <div id="scannerStatus" style="font-family:var(--font-mono);font-size:0.42rem;color:var(--text-dim);letter-spacing:0.1em;text-align:center">
-        Point camera at barcode on CD, Blu-ray, DVD, or vinyl sleeve
-      </div>
-      <div style="position:relative;width:100%;max-width:400px;border:2px solid var(--neon-dim);border-radius:var(--radius);overflow:hidden;background:#000">
-        <video id="scannerVideo" style="width:100%;display:block;max-height:300px;object-fit:cover" playsinline autoplay muted></video>
-        <!-- aim line -->
-        <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:rgba(245,230,66,0.6);transform:translateY(-50%);pointer-events:none"></div>
-      </div>
-      <div id="scannerResult" style="font-family:var(--font-mono);font-size:0.4rem;color:var(--text-dim);letter-spacing:0.08em;text-align:center;min-height:1rem"></div>
-    </div>
-  </div>
-</div>
+
 
   <!-- WISH LIST -->
   <div id="wishPanel">
@@ -1321,17 +1304,65 @@
   </div>
 <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <div class="modal-inner">
-      <div class="modal-title" id="modalTitle">Add Item</div>
-      <div class="form-row">
-        <label>Title *</label>
-        <input id="fTitle" type="text" placeholder="Album, film, or series title">
-      </div>
-      <div class="form-grid">
+    <!-- Mode tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--bg-soft);flex-shrink:0">
+      <button id="tabSingle" onclick="setModalTab('single')" style="flex:1;padding:0.6rem;font-family:var(--font-mono);font-size:0.38rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--neon);color:#000;border:none;cursor:pointer;transition:all var(--transition)">Single</button>
+      <button id="tabBulk" onclick="setModalTab('bulk')" style="flex:1;padding:0.6rem;font-family:var(--font-mono);font-size:0.38rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--bg-soft);color:var(--text-dim);border:none;cursor:pointer;transition:all var(--transition)">Bulk</button>
+      <button id="tabScan" onclick="setModalTab('scan')" style="flex:1;padding:0.6rem;font-family:var(--font-mono);font-size:0.38rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--bg-soft);color:var(--text-dim);border:none;cursor:pointer;transition:all var(--transition)">⬛ Scan</button>
+    </div>
+
+    <!-- SINGLE tab -->
+    <div id="modalPaneSingle">
+      <div class="modal-inner">
+        <div class="modal-title" id="modalTitle">Add Item</div>
         <div class="form-row">
-          <label>Format *</label>
-          <select id="fFormat">
-            <option value="">Select…</option>
+          <label>Title *</label>
+          <input id="fTitle" type="text" placeholder="Album, film, or series title">
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Format *</label>
+            <select id="fFormat">
+              <option value="">Select…</option>
+              <option>Vinyl</option>
+              <option>CD</option>
+              <option>Blu-ray</option>
+              <option>DVD</option>
+              <option>VHS</option>
+              <option>Books</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Genre</label>
+            <input id="fGenre" type="text" placeholder="Jazz, Horror, Sci-fi…">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Artist / Director / Author</label>
+          <input id="fArtist" type="text" placeholder="Who made it">
+        </div>
+        <div class="form-row">
+          <label>Year</label>
+          <input id="fYear" type="number" placeholder="e.g. 1973" min="1888" max="2099">
+        </div>
+        <div class="form-row">
+          <label>Notes</label>
+          <textarea id="fNotes" placeholder="Edition, condition, anything else…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" id="btnSave" onclick="saveItem()">Save</button>
+      </div>
+    </div>
+
+    <!-- BULK tab -->
+    <div id="modalPaneBulk" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="modal-inner">
+        <div class="bulk-format-row" style="margin-bottom:0.5rem">
+          <span class="bulk-format-label">Format:</span>
+          <select class="bulk-format-select" id="bulkFormat2">
+            <option value="">Select format…</option>
             <option>Vinyl</option>
             <option>CD</option>
             <option>Blu-ray</option>
@@ -1340,27 +1371,33 @@
             <option>Books</option>
           </select>
         </div>
-        <div class="form-row">
-          <label>Genre</label>
-          <input id="fGenre" type="text" placeholder="Jazz, Horror, Sci-fi…">
+        <div class="bulk-hint" style="margin-bottom:0.5rem">
+          One per line. Optional: <span style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-dim)">Title | Artist | Genre | Year</span>
         </div>
+        <textarea class="bulk-textarea" id="bulkTextarea2" style="height:220px" placeholder="Kind of Blue&#10;Rumours | Fleetwood Mac | Rock | 1977&#10;The Godfather | Coppola | Drama | 1972" oninput="parseBulk2()"></textarea>
+        <div id="bulkPreview2" style="margin-top:0.5rem;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.08em" id="bulkCountLabel2"></div>
       </div>
-      <div class="form-row">
-        <label>Artist / Director / Author</label>
-        <input id="fArtist" type="text" placeholder="Who made it">
-      </div>
-      <div class="form-row">
-        <label>Year</label>
-        <input id="fYear" type="number" placeholder="e.g. 1973" min="1888" max="2099">
-      </div>
-      <div class="form-row">
-        <label>Notes</label>
-        <textarea id="fNotes" placeholder="Edition, condition, anything else…"></textarea>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" id="btnBulkSave2" onclick="saveBulk2()" disabled>Import</button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" id="btnSave" onclick="saveItem()">Save</button>
+
+    <!-- SCAN tab -->
+    <div id="modalPaneScan" style="display:none;flex-direction:column;flex:1">
+      <div class="modal-inner" style="align-items:center;gap:0.75rem">
+        <div id="scannerStatus2" style="font-family:var(--font-mono);font-size:0.42rem;color:var(--text-dim);letter-spacing:0.1em;text-align:center">
+          Point camera at barcode
+        </div>
+        <div style="position:relative;width:100%;max-width:380px;border:2px solid var(--neon-dim);border-radius:var(--radius);overflow:hidden;background:#000">
+          <video id="scannerVideo" style="width:100%;display:block;max-height:260px;object-fit:cover" playsinline autoplay muted></video>
+          <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:rgba(245,230,66,0.6);transform:translateY(-50%);pointer-events:none"></div>
+        </div>
+        <div id="scannerResult2" style="font-family:var(--font-mono);font-size:0.4rem;color:var(--text-dim);letter-spacing:0.08em;text-align:center;min-height:1rem"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1509,9 +1546,183 @@ function setFilter(fmt, btn) {
   renderGrid();
 }
 
+// ── MODAL TABS ────────────────────────────────────────────
+function setModalTab(tab) {
+  document.getElementById('modalPaneSingle').style.display = tab === 'single' ? '' : 'none';
+  document.getElementById('modalPaneBulk').style.display   = tab === 'bulk'   ? 'flex' : 'none';
+  document.getElementById('modalPaneScan').style.display   = tab === 'scan'   ? 'flex' : 'none';
+  ['single','bulk','scan'].forEach(t => {
+    const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    btn.style.background = t === tab ? 'var(--neon)' : 'var(--bg-soft)';
+    btn.style.color      = t === tab ? '#000' : 'var(--text-dim)';
+  });
+  if (tab === 'scan') {
+    startScannerInModal();
+  } else {
+    stopScannerInModal();
+  }
+  if (tab === 'single') setTimeout(() => document.getElementById('fTitle').focus(), 100);
+}
+
+function startScannerInModal() {
+  scannerActive = true;
+  document.getElementById('scannerStatus2').textContent = 'Starting camera…';
+  if (!window.ZXing) {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    script.onload = () => initModalScanner();
+    script.onerror = () => { document.getElementById('scannerStatus2').textContent = 'Failed to load scanner.'; };
+    document.head.appendChild(script);
+  } else {
+    initModalScanner();
+  }
+}
+
+function initModalScanner() {
+  if (!scannerActive) return;
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(stream => {
+      stream.getTracks().forEach(t => t.stop());
+      document.getElementById('scannerStatus2').textContent = 'Point camera at barcode…';
+      const video = document.getElementById('scannerVideo');
+      const codeReader = new ZXing.BrowserMultiFormatReader();
+      window._codeReader = codeReader;
+      codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+        if (result && scannerActive) {
+          scannerActive = false;
+          codeReader.reset();
+          const upc = result.getText();
+          document.getElementById('scannerStatus2').textContent = `Detected: ${upc}`;
+          document.getElementById('scannerResult2').textContent = 'Looking up…';
+          lookupUPCInModal(upc);
+        }
+      });
+    })
+    .catch(() => { document.getElementById('scannerStatus2').textContent = 'Camera access denied.'; });
+}
+
+function stopScannerInModal() {
+  scannerActive = false;
+  if (window._codeReader) { window._codeReader.reset(); window._codeReader = null; }
+  const video = document.getElementById('scannerVideo');
+  if (video && video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+}
+
+async function lookupUPCInModal(upc) {
+  // reuse the same lookup but switch to single tab when found
+  document.getElementById('scannerResult2').textContent = 'Searching…';
+  let found = null;
+  try {
+    const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${upc}&format=json&jscmd=data`);
+    const data = await res.json();
+    const key = `ISBN:${upc}`;
+    if (data[key]) {
+      const book = data[key];
+      const authors = book.authors ? book.authors.map(a => a.name).join(', ') : '';
+      const year = book.publish_date ? book.publish_date.match(/\d{4}/) : null;
+      found = { title: book.title||'', artist: authors, format: 'Books', genre: book.subjects?.[0]?.name||'', year: year?parseInt(year[0]):null };
+    }
+  } catch(e) {}
+  if (!found) {
+    try {
+      const res = await fetch(`https://musicbrainz.org/ws/2/release?query=barcode:${upc}&fmt=json&limit=1`, { headers: { 'User-Agent': 'BookOfRao/1.0' } });
+      const data = await res.json();
+      if (data.releases?.length) {
+        const r = data.releases[0];
+        const artist = r['artist-credit']?.map(a => a.name||a.artist?.name).join(', ')||'';
+        const year = r.date ? r.date.substring(0,4) : null;
+        found = { title: r.title||'', artist, format: 'CD', genre: '', year: year?parseInt(year):null };
+      }
+    } catch(e) {}
+  }
+  if (!found) {
+    try {
+      const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${upc}`);
+      const data = await res.json();
+      if (data.items?.length) {
+        const item = data.items[0];
+        const cat = (item.category||'').toLowerCase();
+        let format = '';
+        if (cat.includes('vinyl')) format='Vinyl'; else if (cat.includes('blu')) format='Blu-ray';
+        else if (cat.includes('dvd')) format='DVD'; else if (cat.includes('cd')) format='CD';
+        else if (cat.includes('book')) format='Books';
+        found = { title: item.title||'', artist: item.brand||'', format, genre: '', year: null };
+      }
+    } catch(e) {}
+  }
+
+  if (!found) {
+    document.getElementById('scannerResult2').textContent = 'Not found — enter manually.';
+    setTimeout(() => setModalTab('single'), 1500);
+    return;
+  }
+
+  const titleLower = found.title.toLowerCase();
+  const duplicate = items.find(i => titleLower.includes(i.title.toLowerCase()) || i.title.toLowerCase().includes(titleLower));
+  if (duplicate) {
+    document.getElementById('scannerResult2').textContent = '';
+    document.getElementById('scannerStatus2').textContent = `Already on your shelf: ${duplicate.title}`;
+    setTimeout(() => closeModal(), 2500);
+    return;
+  }
+
+  document.getElementById('scannerResult2').textContent = `Found: ${found.title}`;
+  setTimeout(() => {
+    stopScannerInModal();
+    setModalTab('single');
+    document.getElementById('modalTitle').textContent = 'Add Item';
+    document.getElementById('fTitle').value  = found.title;
+    document.getElementById('fArtist').value = found.artist||'';
+    document.getElementById('fFormat').value = found.format||'';
+    document.getElementById('fGenre').value  = found.genre||'';
+    if (found.year) document.getElementById('fYear').value = found.year;
+  }, 800);
+}
+
+// Inline bulk
+function parseBulk2() {
+  const raw = document.getElementById('bulkTextarea2').value;
+  const parsed = raw.split('\n').map(l=>l.trim()).filter(l=>l).map(line => {
+    const p = line.split('|').map(s=>s.trim());
+    const yr = parseInt(p[3]);
+    return { title:p[0]||'', artist_director:p[1]||null, genre:p[2]||null, year:(yr>=1888&&yr<=2099)?yr:null };
+  }).filter(i=>i.title);
+  const format = document.getElementById('bulkFormat2').value;
+  const btn = document.getElementById('btnBulkSave2');
+  btn.disabled = parsed.length === 0 || !format;
+  document.getElementById('bulkPreview2').textContent = parsed.length ? `${parsed.length} item${parsed.length!==1?'s':''} ready` : '';
+}
+document.getElementById('bulkFormat2').addEventListener('change', parseBulk2);
+
+async function saveBulk2() {
+  const raw = document.getElementById('bulkTextarea2').value;
+  const format = document.getElementById('bulkFormat2').value;
+  const parsed = raw.split('\n').map(l=>l.trim()).filter(l=>l).map(line => {
+    const p = line.split('|').map(s=>s.trim());
+    const yr = parseInt(p[3]);
+    return { title:p[0]||'', artist_director:p[1]||null, genre:p[2]||null, year:(yr>=1888&&yr<=2099)?yr:null };
+  }).filter(i=>i.title);
+  if (!parsed.length || !format) { showToast('Add titles and select a format'); return; }
+  const btn = document.getElementById('btnBulkSave2');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const payload = parsed.map(i => ({ ...i, format, notes: null }));
+  try {
+    const created = await sb(TABLE, { method: 'POST', body: JSON.stringify(payload) });
+    if (created) items.push(...created);
+    items.sort((a,b) => a.title.localeCompare(b.title));
+    showToast(`${payload.length} item${payload.length!==1?'s':''} added`);
+    closeModal();
+    renderGrid();
+  } catch(e) {
+    showToast('Error saving');
+    btn.disabled = false; btn.textContent = 'Import';
+  }
+}
+
 // ── MODAL ────────────────────────────────────────────────
 function openModal(item=null) {
   editingId = item ? item.id : null;
+  setModalTab('single');
   document.getElementById('modalTitle').textContent = item ? 'Edit Item' : 'Add Item';
   document.getElementById('fTitle').value  = item?.title || '';
   document.getElementById('fFormat').value = item?.format || '';
@@ -1520,13 +1731,18 @@ function openModal(item=null) {
   document.getElementById('fYear').value   = item?.year || '';
   document.getElementById('fNotes').value  = item?.notes || '';
   document.getElementById('btnSave').disabled = false;
+  // hide bulk/scan tabs when editing
+  document.getElementById('tabBulk').style.display = item ? 'none' : '';
+  document.getElementById('tabScan').style.display = item ? 'none' : '';
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('fTitle').focus(), 100);
 }
 
 function closeModal() {
+  stopScannerInModal();
   document.getElementById('modalOverlay').classList.remove('open');
   editingId = null;
+  window._foundWishId = null;
 }
 
 function handleOverlayClick(e) {
@@ -2241,7 +2457,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.getElementById('rulesOverlay').classList.contains('open')) closeRules();
     else if (document.getElementById('settingsOverlay').classList.contains('open')) closeSettings();
-    else if (document.getElementById('scannerOverlay').classList.contains('open')) closeScanner();
     else if (document.getElementById('wishPanel').classList.contains('open')) closeWish();
     else if (document.getElementById('bulkPanel').classList.contains('open')) closeBulk();
     else closeModal();
@@ -2249,4 +2464,4 @@ document.addEventListener('keydown', e => {
 });
 </script>
 </body>
-</html> 
+</html>
