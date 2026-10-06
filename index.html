@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.4.5 — TV GUIDE SCROLL FIX */
+  /* APP_VERSION: 2.4.6 — TV GUIDE SCROLL FIX */
 
   /* ── TOKENS ── */
   :root {
@@ -315,22 +315,25 @@
 
   /* ── SUB NAV ── */
   #subNav {
-    padding: 0.4rem 1.5rem;
-    display: flex; gap: 1.25rem;
+    padding: 0.6rem 1.5rem;
+    display: flex; gap: 1.5rem;
+    justify-content: center;
     border-bottom: 1px solid var(--border);
     background: var(--bg-card);
   }
   #subNav button {
     background: none; border: none;
     font-family: var(--font-body);
-    font-size: 0.36rem;
+    font-size: 0.52rem;
+    font-weight: 500;
     color: var(--text-muted);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    cursor: pointer; padding: 0;
+    cursor: pointer; padding: 0.2rem 0;
     transition: color var(--transition);
+    border-bottom: 2px solid transparent;
   }
-  #subNav button:hover { color: var(--blue); }
+  #subNav button:hover { color: var(--blue); border-bottom-color: var(--blue); }
 
   /* ── GRID ── */
   .grid-wrap { padding: 0.75rem 1rem; }
@@ -759,7 +762,7 @@
   .tv-shuffle-btn:hover { border-color: var(--blue); color: var(--blue); }
   .tv-grid-wrap { overflow-x: auto; }
   .tv-grid {
-    display: grid; grid-template-columns: 80px repeat(7, 1fr);
+    display: grid; grid-template-columns: 100px repeat(7, 1fr);
     gap: 1px; background: var(--border);
     border: 1px solid var(--border); border-radius: var(--radius-lg);
     overflow: hidden; min-width: 600px;
@@ -768,10 +771,10 @@
     background: var(--bg-card); padding: 0.45rem 0.55rem;
     display: flex; flex-direction: column; gap: 0.15rem; min-height: 60px;
   }
-  .tv-cell.header { background: var(--navy); align-items: center; justify-content: center; min-height: auto; padding: 0.5rem 0.4rem; }
-  .tv-cell.time-label { background: var(--bg-mid); align-items: center; justify-content: center; min-height: auto; }
-  .tv-day-label { font-family: var(--font-body); font-weight: 600; font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.1em; color: #e8e4de; text-align: center; line-height: 1.3; }
-  .tv-time-label { font-size: 0.34rem; color: var(--text-muted); text-align: center; line-height: 1.4; letter-spacing: 0.04em; }
+  .tv-cell.header { background: var(--navy); align-items: center; justify-content: center; min-height: auto; padding: 0.65rem 0.4rem; }
+  .tv-cell.time-label { background: var(--bg-mid); align-items: center; justify-content: center; min-height: auto; padding: 0.5rem 0.4rem; }
+  .tv-day-label { font-family: var(--font-body); font-weight: 700; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; color: #e8e4de; text-align: center; line-height: 1.3; }
+  .tv-time-label { font-size: 0.45rem; font-weight: 600; color: var(--text-mid); text-align: center; line-height: 1.5; letter-spacing: 0.03em; }
   .tv-slot { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; }
   .tv-slot-format { font-size: 0.3rem; letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 0.2rem; color: var(--text-dim); }
   .tv-slot-title { font-family: var(--font-display); font-size: 0.48rem; color: var(--text); line-height: 1.2; flex: 1; }
