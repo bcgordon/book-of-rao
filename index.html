@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.3.1 — TV GUIDE FIXES */
+  /* APP_VERSION: 2.3.2 — TV GUIDE SLOT TYPES */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -2593,6 +2593,7 @@ function renderWishGrid() {
 
 // ── TV GUIDE ──────────────────────────────────────────────
 const TV_SLOTS = ['7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
+const TV_SLOT_LABELS = { '7:00 PM': '7pm · Music', '8:00 PM': '8pm · TV', '9:00 PM': '9pm · Movie', '10:00 PM': '10pm · Reading' };
 const TV_TABLE = 'tv_guide';
 let tvSchedule = []; // flat array of slot objects from Supabase
 
@@ -2682,17 +2683,12 @@ async function generateGuide() {
 
   // Build pools
   const musicPool = items.filter(i => ['Vinyl','CD'].includes(i.format));
-  const videoPool = items.filter(i => ['Blu-ray','DVD','VHS'].includes(i.format));
+  const tvPool    = items.filter(i => ['Blu-ray','DVD','VHS'].includes(i.format) && isSeriesItemByTitle(i.title));
+  const moviePool = items.filter(i => ['Blu-ray','DVD'].includes(i.format) && !isSeriesItemByTitle(i.title));
 
-  // Shuffle music pool (least played first with randomness)
   const musicPicked = pickItems(musicPool, 7);
-  // Video pool — pick 14 items (2 per night), cycling
-  const videoPicked = pickItems(videoPool, 14);
-  // If fewer than 14, cycle
-  const videoSlots = [];
-  for (let i = 0; i < 14; i++) {
-    videoSlots.push(videoPicked[i % videoPicked.length]);
-  }
+  const tvPicked    = pickItems(tvPool, 7);
+  const moviePicked = pickItems(moviePool, 7);
 
   // Build insert payload
   const rows = [];
@@ -2700,20 +2696,24 @@ async function generateGuide() {
     const ds = dateStr(date);
 
     // 7pm — music
-    const music = musicPicked[dayIdx % musicPicked.length];
-    if (music) {
-      rows.push({ slot_date: ds, slot_time: '7:00 PM', item_id: music.id, item_title: music.title, item_format: music.format, watched: false });
-    } else {
-      rows.push({ slot_date: ds, slot_time: '7:00 PM', item_id: null, item_title: null, item_format: null, watched: false });
-    }
+    const music = musicPicked[dayIdx % (musicPicked.length || 1)];
+    rows.push(music
+      ? { slot_date: ds, slot_time: '7:00 PM', item_id: music.id, item_title: music.title, item_format: music.format, watched: false }
+      : { slot_date: ds, slot_time: '7:00 PM', item_id: null, item_title: null, item_format: null, watched: false });
 
-    // 8pm and 9pm — video
-    const v1 = videoSlots[dayIdx * 2];
-    const v2 = videoSlots[dayIdx * 2 + 1];
-    if (v1) rows.push({ slot_date: ds, slot_time: '8:00 PM', item_id: v1.id, item_title: v1.title, item_format: v1.format, watched: false });
-    if (v2) rows.push({ slot_date: ds, slot_time: '9:00 PM', item_id: v2.id, item_title: v2.title, item_format: v2.format, watched: false });
+    // 8pm — TV series
+    const tv = tvPicked[dayIdx % (tvPicked.length || 1)];
+    rows.push(tv
+      ? { slot_date: ds, slot_time: '8:00 PM', item_id: tv.id, item_title: tv.title, item_format: tv.format, watched: false }
+      : { slot_date: ds, slot_time: '8:00 PM', item_id: null, item_title: null, item_format: null, watched: false });
 
-    // 10pm — reading hour (no item)
+    // 9pm — movie
+    const movie = moviePicked[dayIdx % (moviePicked.length || 1)];
+    rows.push(movie
+      ? { slot_date: ds, slot_time: '9:00 PM', item_id: movie.id, item_title: movie.title, item_format: movie.format, watched: false }
+      : { slot_date: ds, slot_time: '9:00 PM', item_id: null, item_title: null, item_format: null, watched: false });
+
+    // 10pm — reading hour
     rows.push({ slot_date: ds, slot_time: '10:00 PM', item_id: null, item_title: null, item_format: 'reading', watched: false });
   });
 
@@ -2785,7 +2785,7 @@ function renderTVGrid() {
 
   // Time slot rows
   TV_SLOTS.forEach(time => {
-    html += `<div class="tv-cell time-label"><div class="tv-time-label">${time}</div></div>`;
+    html += `<div class="tv-cell time-label"><div class="tv-time-label">${TV_SLOT_LABELS[time] || time}</div></div>`;
     dates.forEach(d => {
       const key = `${dateStr(d)}_${time}`;
       const slot = lookup[key];
