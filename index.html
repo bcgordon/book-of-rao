@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.3.0 — TV GUIDE */
+  /* APP_VERSION: 2.3.1 — TV GUIDE FIXES */
   :root {
     --bg:        #0d0d0d;
     --bg-mid:    #161616;
@@ -1182,7 +1182,7 @@
 <div id="app" style="display:none">
   <header>
     <div class="header-left">
-      <div class="app-title">Book of Rao</div>
+      <div class="app-title" onclick="goHome()" style="cursor:pointer" title="Back to library">Book of Rao</div>
       <div class="app-count" id="countLabel">— items</div>
     </div>
     <div style="display:flex;gap:0.5rem;align-items:center">
@@ -1215,10 +1215,10 @@
     </div>
   </div>
 
-  <div style="padding:0.4rem 1.5rem;display:flex;gap:1rem;border-bottom:1px solid var(--bg-soft);background:var(--bg-mid)">
-    <button onclick="openWish()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">★ Wish List</button>
-    <button onclick="openBulk()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">⊞ Bulk Entry</button>
-    <button onclick="openTVGuide()" id="btnTVGuide" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">📺 TV Guide</button>
+  <div id="subNav" style="padding:0.4rem 1.5rem;display:flex;gap:1rem;border-bottom:1px solid var(--bg-soft);background:var(--bg-mid)">
+    <button id="btnWishNav" onclick="openWish()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">★ Wish List</button>
+    <button id="btnBulkNav" onclick="openBulk()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">⊞ Bulk Entry</button>
+    <button id="btnTVGuide" onclick="openTVGuide()" style="background:none;border:none;font-family:var(--font-mono);font-size:0.38rem;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:0;transition:color var(--transition)" onmouseover="this.style.color='var(--neon)'" onmouseout="this.style.color='var(--text-dim)'">📺 TV Guide</button>
   </div>
 
   <div class="grid-wrap" id="gridWrap">
@@ -1987,7 +1987,6 @@ function openBulk() {
   document.getElementById('gridWrap').style.display = 'none';
   document.querySelector('.controls').style.display = 'none';
   document.getElementById('bulkPanel').classList.add('open');
-  document.getElementById('btnBulkOpen').style.display = 'none';
   document.getElementById('bulkTextarea').focus();
 }
 
@@ -2001,7 +2000,6 @@ function closeBulk() {
   document.getElementById('btnBulkSave').disabled = true;
   document.getElementById('gridWrap').style.display = '';
   document.querySelector('.controls').style.display = '';
-  document.getElementById('btnBulkOpen').style.display = '';
 }
 
 function parseBulkLines() {
@@ -2485,7 +2483,6 @@ function openWish() {
   document.getElementById('gridWrap').style.display = 'none';
   document.querySelector('.controls').style.display = 'none';
   document.getElementById('wishPanel').classList.add('open');
-  document.getElementById('btnWishOpen').style.display = 'none';
   loadWishItems().then(renderWishGrid);
 }
 
@@ -2493,7 +2490,6 @@ function closeWish() {
   document.getElementById('wishPanel').classList.remove('open');
   document.getElementById('gridWrap').style.display = '';
   document.querySelector('.controls').style.display = '';
-  document.getElementById('btnWishOpen').style.display = '';
   document.getElementById('wTitle').value = '';
   document.getElementById('wFormat').value = '';
   document.getElementById('wArtist').value = '';
@@ -2621,27 +2617,46 @@ function formatDateLabel(d) {
   return `${DAYS_SHORT[d.getDay()]}\n${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`;
 }
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function pickItems(pool, count) {
-  // Sort by play_count ascending so least-played come first, then shuffle within tiers
+  if (!pool.length) return [];
+  // Divide into tertiles by play count so least-played are favoured
+  // but within each tertile items are fully shuffled — breaks alphabetical clustering
   const sorted = [...pool].sort((a,b) => (a.play_count||0) - (b.play_count||0));
-  const picked = [];
-  const used = new Set();
-  while (picked.length < count && picked.length < sorted.length) {
-    for (const item of sorted) {
-      if (!used.has(item.id)) {
-        picked.push(item);
-        used.add(item.id);
-        if (picked.length >= count) break;
-      }
-    }
-    break;
+  const third = Math.ceil(sorted.length / 3);
+  const t1 = shuffle(sorted.slice(0, third));
+  const t2 = shuffle(sorted.slice(third, third * 2));
+  const t3 = shuffle(sorted.slice(third * 2));
+  // Draw from tertiles in 3:2:1 ratio, cycling
+  const weighted = [];
+  const maxLen = Math.max(t1.length, t2.length, t3.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < t1.length) weighted.push(t1[i]);
+    if (i < t1.length) weighted.push(t1[(i + Math.floor(t1.length/2)) % t1.length]); // double-weight t1
+    if (i < t2.length) weighted.push(t2[i]);
+    if (i < t3.length) weighted.push(t3[i]);
   }
-  // Shuffle the picked set so same-count items vary
-  for (let i = picked.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
-    [picked[i], picked[j]] = [picked[j], picked[i]];
+  // Deduplicate while preserving order
+  const seen = new Set();
+  const deduped = weighted.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+  // Cycle if needed
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(deduped[i % deduped.length]);
   }
-  return picked;
+  return result;
 }
 
 function isSeriesItem(item) {
@@ -2808,11 +2823,18 @@ function isSeriesItemByTitle(title) {
   return t.includes('season') || t.includes('series') || t.includes('complete') || t.includes('collection');
 }
 
+function goHome() {
+  // Close any open panel and return to the library grid
+  const panels = ['tvPanel','wishPanel','bulkPanel'];
+  panels.forEach(id => document.getElementById(id)?.classList.remove('open'));
+  document.getElementById('gridWrap').style.display = '';
+  document.querySelector('.controls').style.display = '';
+}
+
 async function openTVGuide() {
   document.getElementById('gridWrap').style.display = 'none';
   document.querySelector('.controls').style.display = 'none';
   document.getElementById('tvPanel').classList.add('open');
-  document.getElementById('btnTVGuide').style.display = 'none';
   document.getElementById('tvGrid').className = 'tv-loading';
   document.getElementById('tvGrid').textContent = 'Loading guide…';
   await loadTVGuide();
@@ -2827,7 +2849,6 @@ function closeTVGuide() {
   document.getElementById('tvPanel').classList.remove('open');
   document.getElementById('gridWrap').style.display = '';
   document.querySelector('.controls').style.display = '';
-  document.getElementById('btnTVGuide').style.display = '';
 }
 
 document.addEventListener('keydown', e => {
