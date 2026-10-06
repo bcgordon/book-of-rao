@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* APP_VERSION: 2.4.2 — MEDIA TYPE TAG */
+  /* APP_VERSION: 2.4.3 — COMPACT CARDS */
 
   /* ── TOKENS ── */
   :root {
@@ -406,12 +406,7 @@
     color: var(--text-mid);
     font-weight: 400;
   }
-  .card-genre {
-    font-size: 0.36rem;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+  /* card-genre now inline in card-format */
   .card-actions {
     position: absolute; top: 0.75rem; right: 0.75rem;
     display: flex; gap: 0.25rem;
@@ -1405,11 +1400,10 @@ function renderGrid() {
       </div>
       <div class="card-format">
         <span class="format-dot ${formatClass(it.format)}"></span>
-        <span style="color:var(--text-dim)">${it.format || ''}${it.year ? ` · ${it.year}` : ''}</span>
+        <span style="color:var(--text-dim)">${it.format || ''}${it.year ? ` · ${it.year}` : ''}${it.genre ? ` · ${esc(it.genre)}` : ''}</span>
       </div>
       <div class="card-title">${esc(it.title)}</div>
       ${it.artist_director ? `<div class="card-artist">${esc(it.artist_director)}</div>` : ''}
-      ${it.genre ? `<div class="card-genre">${esc(it.genre)}</div>` : ''}
       ${rules[it.format] ? `
         <div class="card-play-count">${it.play_count > 0 ? `▶ played ${it.play_count}×${it.last_played ? ' · ' + it.last_played : ''}` : '▶ not yet played'}</div>
         <button class="card-play-btn${it.play_count > 0 ? ' played' : ''}" onclick="logPlay(event,'${it.id}')" title="Log a play">
